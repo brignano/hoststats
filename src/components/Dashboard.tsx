@@ -19,9 +19,10 @@ interface Props {
   data: ParsedData;
   onReset: () => void;
   onAddMore: () => void;
+  disableAddMore?: boolean;
 }
 
-export default function Dashboard({ data, onReset, onAddMore }: Props) {
+export default function Dashboard({ data, onReset, onAddMore, disableAddMore }: Props) {
   const { reservations, payouts } = data;
 
   const monthlyOccupancy = useMemo(
@@ -51,7 +52,8 @@ export default function Dashboard({ data, onReset, onAddMore }: Props) {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={onAddMore}
-              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-brand hover:text-brand transition-colors"
+              disabled={disableAddMore}
+              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-brand hover:text-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-600"
             >
               ➕ Add more files
             </button>

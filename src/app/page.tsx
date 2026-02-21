@@ -53,7 +53,8 @@ export default function Home() {
   }
 
   if (data && !addingMore) {
-    return <Dashboard data={data} onReset={handleReset} onAddMore={handleAddMore} />;
+    const hasBothFiles = data.reservations.length > 0 && data.payouts.length > 0;
+    return <Dashboard data={data} onReset={handleReset} onAddMore={handleAddMore} disableAddMore={hasBothFiles} />;
   }
 
   return (

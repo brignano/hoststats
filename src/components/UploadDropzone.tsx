@@ -28,29 +28,31 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
     <div
       {...getRootProps()}
       className={`
-        border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors
+        border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors min-h-[220px] flex flex-col items-center justify-center
         ${isDragActive ? "border-brand bg-red-50" : "border-gray-300 bg-white hover:border-brand hover:bg-red-50"}
         ${loading ? "opacity-50 cursor-not-allowed" : ""}
       `}
     >
       <input {...getInputProps()} />
-      {loading ? (
-        <p className="text-lg text-gray-500">⏳ Processing your files…</p>
-      ) : isDragActive ? (
-        <p className="text-lg text-brand font-medium">Drop them here! 📂</p>
-      ) : (
-        <>
-          <div className="text-5xl mb-4">📄</div>
-          <p className="text-xl font-semibold text-gray-700">
-            Drop your CSVs here
-          </p>
-          <p className="text-gray-400 mt-2">or click to browse files</p>
-          <p className="text-sm text-gray-400 mt-4">
-            You can upload both your Reservations CSV and Earnings CSV at the
-            same time
-          </p>
-        </>
-      )}
+      <div className="flex-1 flex flex-col items-center justify-center">
+        {loading ? (
+          <p className="text-lg text-gray-500">⏳ Processing your files…</p>
+        ) : isDragActive ? (
+          <p className="text-lg text-brand font-medium">Drop them here! 📂</p>
+        ) : (
+          <>
+            <div className="text-5xl mb-4">📄</div>
+            <p className="text-xl font-semibold text-gray-700">
+              Drop your CSVs here
+            </p>
+            <p className="text-gray-400 mt-2">or click to browse files</p>
+            <p className="text-sm text-gray-400 mt-4">
+              You can upload both your Reservations CSV and Earnings CSV at the
+              same time
+            </p>
+          </>
+        )}
+      </div>
       {onCancel && !loading && (
         <button
           onClick={(e) => {

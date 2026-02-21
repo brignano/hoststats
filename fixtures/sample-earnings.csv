@@ -1,11 +1,105 @@
 Date,Type,Amount,Description,Confirmation Code
-2024-01-08,Payout,320.00,Reservation payout,HMABCDE123
-2024-01-18,Payout,310.00,Reservation payout,HMABCDE124
-2024-02-14,Payout,430.00,Reservation payout,HMABCDE126
-2024-02-22,Payout,210.00,Reservation payout,HMABCDE127
-2024-03-07,Payout,440.00,Reservation payout,HMABCDE128
-2024-03-16,Payout,215.00,Reservation payout,HMABCDE129
-2024-03-25,Payout,330.00,Reservation payout,HMABCDE130
-2024-04-10,Payout,550.00,Reservation payout,HMABCDE131
-2024-04-21,Payout,320.00,Reservation payout,HMABCDE132
-2024-04-30,Adjustment,-25.00,Service fee adjustment,
+2024-01-14,Payout,245.00,Reservation payout,HMFG8K2P3Q
+2024-01-14,Payout,75.00,Cleaning fee,HMFG8K2P3Q
+2024-01-22,Payout,398.00,Reservation payout,HMDK9L3M4N
+2024-01-22,Payout,85.00,Cleaning fee,HMDK9L3M4N
+2024-01-28,Refund,-120.00,Guest cancellation refund,HMBV7N8P2Q
+2024-02-04,Payout,258.00,Reservation payout,HMCX5K6L7M
+2024-02-04,Payout,75.00,Cleaning fee,HMCX5K6L7M
+2024-02-18,Payout,612.00,Reservation payout,HMTY4J5K6L
+2024-02-18,Payout,95.00,Cleaning fee,HMTY4J5K6L
+2024-02-18,Payout,50.00,Extra guest fee,HMTY4J5K6L
+2024-02-25,Payout,268.00,Reservation payout,HMNM3H4J5K
+2024-02-25,Payout,75.00,Cleaning fee,HMNM3H4J5K
+2024-03-05,Adjustment,-38.50,Service fee adjustment,
+2024-03-11,Payout,425.00,Reservation payout,HMPL2G3H4J
+2024-03-11,Payout,85.00,Cleaning fee,HMPL2G3H4J
+2024-03-18,Payout,445.00,Reservation payout,HMQW1F2G3H
+2024-03-18,Payout,85.00,Cleaning fee,HMQW1F2G3H
+2024-03-29,Payout,1089.00,Reservation payout,HMRX9E0F1G
+2024-03-29,Payout,125.00,Cleaning fee,HMRX9E0F1G
+2024-04-06,Refund,-95.00,Guest cancellation refund,HMSY8D9E0F
+2024-04-15,Payout,478.00,Reservation payout,HMTZ7C8D9E
+2024-04-15,Payout,85.00,Cleaning fee,HMTZ7C8D9E
+2024-04-22,Payout,498.00,Reservation payout,HMUV6B7C8D
+2024-04-22,Payout,85.00,Cleaning fee,HMUV6B7C8D
+2024-04-28,Payout,318.00,Reservation payout,HMWX5A6B7C
+2024-04-28,Payout,75.00,Cleaning fee,HMWX5A6B7C
+2024-05-06,Payout,525.00,Reservation payout,HMXY4Z5A6B
+2024-05-06,Payout,95.00,Cleaning fee,HMXY4Z5A6B
+2024-05-13,Payout,545.00,Reservation payout,HMYZ3Y4Z5A
+2024-05-13,Payout,95.00,Cleaning fee,HMYZ3Y4Z5A
+2024-05-20,Payout,565.00,Reservation payout,HMZA2X3Y4Z
+2024-05-20,Payout,95.00,Cleaning fee,HMZA2X3Y4Z
+2024-05-27,Payout,582.00,Reservation payout,HM1B1W2X3Y
+2024-05-27,Payout,95.00,Cleaning fee,HM1B1W2X3Y
+2024-06-03,Payout,598.00,Reservation payout,HM2C9V0W1X
+2024-06-03,Payout,95.00,Cleaning fee,HM2C9V0W1X
+2024-06-14,Payout,1456.00,Reservation payout,HM3D8U9V0W
+2024-06-14,Payout,135.00,Cleaning fee,HM3D8U9V0W
+2024-06-14,Payout,75.00,Extra guest fee,HM3D8U9V0W
+2024-06-17,Payout,615.00,Reservation payout,HM4E7T8U9V
+2024-06-17,Payout,95.00,Cleaning fee,HM4E7T8U9V
+2024-06-28,Payout,1498.00,Reservation payout,HM5F6S7T8U
+2024-06-28,Payout,135.00,Cleaning fee,HM5F6S7T8U
+2024-06-28,Payout,100.00,Extra guest fee,HM5F6S7T8U
+2024-07-05,Payout,1589.00,Reservation payout,HM6G5R6S7T
+2024-07-05,Payout,135.00,Cleaning fee,HM6G5R6S7T
+2024-07-05,Payout,125.00,Extra guest fee,HM6G5R6S7T
+2024-07-12,Payout,1645.00,Reservation payout,HM7H4Q5R6S
+2024-07-12,Payout,135.00,Cleaning fee,HM7H4Q5R6S
+2024-07-12,Payout,125.00,Extra guest fee,HM7H4Q5R6S
+2024-07-19,Payout,1698.00,Reservation payout,HM8J3P4Q5R
+2024-07-19,Payout,135.00,Cleaning fee,HM8J3P4Q5R
+2024-07-19,Payout,125.00,Extra guest fee,HM8J3P4Q5R
+2024-07-26,Payout,1725.00,Reservation payout,HM9K2O3P4Q
+2024-07-26,Payout,135.00,Cleaning fee,HM9K2O3P4Q
+2024-07-26,Payout,125.00,Extra guest fee,HM9K2O3P4Q
+2024-08-02,Payout,1756.00,Reservation payout,HMLM1N2O3P
+2024-08-02,Payout,135.00,Cleaning fee,HMLM1N2O3P
+2024-08-02,Payout,125.00,Extra guest fee,HMLM1N2O3P
+2024-08-09,Payout,1798.00,Reservation payout,HMNP9M0N1O
+2024-08-09,Payout,135.00,Cleaning fee,HMNP9M0N1O
+2024-08-09,Payout,125.00,Extra guest fee,HMNP9M0N1O
+2024-08-12,Resolution,-150.00,Guest damage claim,HMNP9M0N1O
+2024-08-16,Payout,1825.00,Reservation payout,HMQR8L9M0N
+2024-08-16,Payout,135.00,Cleaning fee,HMQR8L9M0N
+2024-08-16,Payout,125.00,Extra guest fee,HMQR8L9M0N
+2024-08-23,Payout,1798.00,Reservation payout,HMST7K8L9M
+2024-08-23,Payout,135.00,Cleaning fee,HMST7K8L9M
+2024-08-23,Payout,125.00,Extra guest fee,HMST7K8L9M
+2024-08-26,Payout,625.00,Reservation payout,HMUV6J7K8L
+2024-08-26,Payout,95.00,Cleaning fee,HMUV6J7K8L
+2024-09-02,Payout,545.00,Reservation payout,HMWX5H6J7K
+2024-09-02,Payout,95.00,Cleaning fee,HMWX5H6J7K
+2024-09-09,Payout,495.00,Reservation payout,HMYZ4G5H6J
+2024-09-09,Payout,95.00,Cleaning fee,HMYZ4G5H6J
+2024-09-14,Refund,-145.00,Guest cancellation refund,HMZA3F4G5H
+2024-09-23,Payout,468.00,Reservation payout,HM1B2E3F4G
+2024-09-23,Payout,85.00,Cleaning fee,HM1B2E3F4G
+2024-09-30,Payout,445.00,Reservation payout,HM2C1D2E3F
+2024-09-30,Payout,85.00,Cleaning fee,HM2C1D2E3F
+2024-10-07,Payout,412.00,Reservation payout,HM3D9C0D1E
+2024-10-07,Payout,85.00,Cleaning fee,HM3D9C0D1E
+2024-10-14,Payout,395.00,Reservation payout,HM4E8B9C0D
+2024-10-14,Payout,85.00,Cleaning fee,HM4E8B9C0D
+2024-10-19,Refund,-115.00,Guest cancellation refund,HM5F7A8B9C
+2024-10-28,Payout,385.00,Reservation payout,HM6G6Z7A8B
+2024-10-28,Payout,85.00,Cleaning fee,HM6G6Z7A8B
+2024-11-04,Payout,345.00,Reservation payout,HM7H5Y6Z7A
+2024-11-04,Payout,85.00,Cleaning fee,HM7H5Y6Z7A
+2024-11-11,Payout,325.00,Reservation payout,HM8J4X5Y6Z
+2024-11-11,Payout,85.00,Cleaning fee,HM8J4X5Y6Z
+2024-11-15,Adjustment,50.00,Airbnb promotional credit,
+2024-11-25,Payout,398.00,Reservation payout,HM9K3W4X5Y
+2024-11-25,Payout,85.00,Cleaning fee,HM9K3W4X5Y
+2024-12-02,Payout,365.00,Reservation payout,HMLM2V3W4X
+2024-12-02,Payout,85.00,Cleaning fee,HMLM2V3W4X
+2024-12-09,Payout,348.00,Reservation payout,HMNP1U2V3W
+2024-12-09,Payout,85.00,Cleaning fee,HMNP1U2V3W
+2024-12-27,Payout,1125.00,Reservation payout,HMQR9T0U1V
+2024-12-27,Payout,125.00,Cleaning fee,HMQR9T0U1V
+2024-12-27,Payout,100.00,Extra guest fee,HMQR9T0U1V
+2025-01-03,Payout,1245.00,Reservation payout,HMST8S9T0U
+2025-01-03,Payout,125.00,Cleaning fee,HMST8S9T0U
+2025-01-03,Payout,100.00,Extra guest fee,HMST8S9T0U
