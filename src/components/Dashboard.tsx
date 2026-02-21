@@ -18,9 +18,11 @@ import RevenueChart from "./RevenueChart";
 interface Props {
   data: ParsedData;
   onReset: () => void;
+  onAddMore: () => void;
+  disableAddMore?: boolean;
 }
 
-export default function Dashboard({ data, onReset }: Props) {
+export default function Dashboard({ data, onReset, onAddMore, disableAddMore }: Props) {
   const { reservations, payouts } = data;
 
   const monthlyOccupancy = useMemo(
@@ -47,12 +49,21 @@ export default function Dashboard({ data, onReset }: Props) {
             <h1 className="text-3xl font-bold text-gray-900">🏡 HostStats</h1>
             <p className="text-gray-500 text-sm mt-1">Your Airbnb at a glance</p>
           </div>
-          <button
-            onClick={onReset}
-            className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-brand hover:text-brand transition-colors"
-          >
-            ↩ Upload new file
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={onAddMore}
+              disabled={disableAddMore}
+              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-brand hover:text-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-600"
+            >
+              ➕ Add more files
+            </button>
+            <button
+              onClick={onReset}
+              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-red-400 hover:text-red-500 transition-colors"
+            >
+              ↩ Start over
+            </button>
+          </div>
         </div>
 
         {/* Summary cards */}
@@ -98,12 +109,12 @@ export default function Dashboard({ data, onReset }: Props) {
         {/* Prompts for missing data */}
         {!hasRevenue && (
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-700 text-sm">
-            💡 <strong>Upload an Earnings CSV</strong> to enable revenue charts.
+            💡 <strong>Add an Earnings CSV</strong> to enable revenue charts.
           </div>
         )}
         {reservations.length === 0 && (
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm">
-            💡 <strong>Upload a Reservations CSV</strong> to see occupancy charts.
+            💡 <strong>Add a Reservations CSV</strong> to see occupancy charts.
           </div>
         )}
 
