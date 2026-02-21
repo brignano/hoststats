@@ -6,9 +6,10 @@ import { useDropzone } from "react-dropzone";
 interface Props {
   onFiles: (files: File[]) => void;
   loading: boolean;
+  onCancel?: () => void;
 }
 
-export default function UploadDropzone({ onFiles, loading }: Props) {
+export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) onFiles(acceptedFiles);
@@ -34,20 +35,32 @@ export default function UploadDropzone({ onFiles, loading }: Props) {
     >
       <input {...getInputProps()} />
       {loading ? (
-        <p className="text-lg text-gray-500">⏳ Processing your file…</p>
+        <p className="text-lg text-gray-500">⏳ Processing your files…</p>
       ) : isDragActive ? (
-        <p className="text-lg text-brand font-medium">Drop it here! 📂</p>
+        <p className="text-lg text-brand font-medium">Drop them here! 📂</p>
       ) : (
         <>
           <div className="text-5xl mb-4">📄</div>
           <p className="text-xl font-semibold text-gray-700">
-            Drop your CSV here
+            Drop your CSVs here
           </p>
-          <p className="text-gray-400 mt-2">or click to browse</p>
+          <p className="text-gray-400 mt-2">or click to browse files</p>
           <p className="text-sm text-gray-400 mt-4">
-            Accepts: Reservations CSV or Earnings CSV from Airbnb
+            You can upload both your Reservations CSV and Earnings CSV at the
+            same time
           </p>
         </>
+      )}
+      {onCancel && !loading && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onCancel();
+          }}
+          className="mt-4 text-sm text-gray-400 hover:text-gray-600 underline"
+        >
+          Cancel
+        </button>
       )}
     </div>
   );

@@ -10,12 +10,16 @@ export default function Home() {
   const [data, setData] = useState<ParsedData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [addingMore, setAddingMore] = useState(false);
 
   async function handleFiles(files: File[]) {
     setLoading(true);
     setError(null);
     try {
-      let combined: ParsedData = { reservations: [], payouts: [] };
+      let combined: ParsedData =
+        addingMore && data
+          ? { reservations: [...data.reservations], payouts: [...data.payouts] }
+          : { reservations: [], payouts: [] };
       for (const file of files) {
         const result = await parseFile(file);
         combined = {
@@ -24,6 +28,7 @@ export default function Home() {
         };
       }
       setData(combined);
+      setAddingMore(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -34,10 +39,21 @@ export default function Home() {
   function handleReset() {
     setData(null);
     setError(null);
+    setAddingMore(false);
   }
 
-  if (data) {
-    return <Dashboard data={data} onReset={handleReset} />;
+  function handleAddMore() {
+    setAddingMore(true);
+    setError(null);
+  }
+
+  function handleCancelAddMore() {
+    setAddingMore(false);
+    setError(null);
+  }
+
+  if (data && !addingMore) {
+    return <Dashboard data={data} onReset={handleReset} onAddMore={handleAddMore} />;
   }
 
   return (
@@ -62,7 +78,11 @@ export default function Home() {
           </div>
         )}
 
-        <UploadDropzone onFiles={handleFiles} loading={loading} />
+        <UploadDropzone
+          onFiles={handleFiles}
+          loading={loading}
+          onCancel={addingMore ? handleCancelAddMore : undefined}
+        />
 
         <div className="mt-6 text-center text-sm text-gray-400">
           <p>
