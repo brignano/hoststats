@@ -1,0 +1,11 @@
+Date,Type,Amount,Description,Confirmation Code
+2024-01-08,Payout,320.00,Reservation payout,HMABCDE123
+2024-01-18,Payout,310.00,Reservation payout,HMABCDE124
+2024-02-14,Payout,430.00,Reservation payout,HMABCDE126
+2024-02-22,Payout,210.00,Reservation payout,HMABCDE127
+2024-03-07,Payout,440.00,Reservation payout,HMABCDE128
+2024-03-16,Payout,215.00,Reservation payout,HMABCDE129
+2024-03-25,Payout,330.00,Reservation payout,HMABCDE130
+2024-04-10,Payout,550.00,Reservation payout,HMABCDE131
+2024-04-21,Payout,320.00,Reservation payout,HMABCDE132
+2024-04-30,Adjustment,-25.00,Service fee adjustment,
