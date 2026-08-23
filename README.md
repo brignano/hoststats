@@ -46,7 +46,7 @@ You'll need to export CSVs from your Airbnb hosting dashboard. Here's how:
 
 ### Prerequisites
 
-- [Node.js 20+](https://nodejs.org/) (see `.nvmrc`)
+- [Node.js 22+](https://nodejs.org/) (see `.nvmrc`) — Wrangler requires Node 22
 - npm (comes with Node.js)
 
 ### Setup
