@@ -185,7 +185,13 @@ export default function Home() {
 
         <p className="mt-6 text-center text-xs text-gray-400">
           Your files never leave your device. HostStats is not affiliated with
-          Airbnb.
+          Airbnb.{" "}
+          <a
+            href="/privacy/"
+            className="underline hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
+          >
+            Privacy
+          </a>
         </p>
       </div>
     </main>
