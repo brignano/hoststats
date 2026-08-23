@@ -14,14 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      # The account ID is not a credential — it appears in every dashboard URL
+      # and is useless without a token — so it lives in Variables. Keeping it
+      # out of Secrets also stops GitHub masking it as *** in deploy logs,
+      # which matters when you are reading Wrangler output to debug a failure.
       - name: Check Cloudflare credentials are configured
         run: |
           missing=""
-          [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] && missing="$missing CLOUDFLARE_API_TOKEN"
-          [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] && missing="$missing CLOUDFLARE_API_TOKEN (secret)"
+          [ -z "${{ vars.CLOUDFLARE_ACCOUNT_ID }}" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID (variable)"
           if [ -n "$missing" ]; then
-            echo "::error::Missing repository secret(s):$missing — add them under" \
-                 "Settings → Secrets and variables → Actions. See docs/DEPLOYING.md."
+            echo "::error::Missing:$missing — add under Settings → Secrets and" \
+                 "variables → Actions, on the matching tab. See docs/DEPLOYING.md."
             exit 1
           fi
 
@@ -47,4 +51,4 @@ jobs:
         run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
