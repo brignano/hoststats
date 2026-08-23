@@ -26,7 +26,7 @@ npm run deploy          # builds ./out and uploads it
 ```
 
 `npm run deploy` runs `next build` (which writes the static export to `out/`)
-and then `wrangler deploy`, which reads `wrangler.jsonc`. First deploy asks to
+and then `npx wrangler deploy`, which reads `wrangler.jsonc`. First deploy asks to
 create the Worker; after that it just uploads.
 
 You'll get a URL like `https://hoststats.<your-subdomain>.workers.dev`. Open
@@ -56,8 +56,11 @@ In the Cloudflare dashboard: **Workers & Pages → hoststats → Settings → Do
 
 Because `brignano.io` is already a Cloudflare zone, the DNS record is created
 and proxied for you — no CNAME to copy anywhere, and the certificate is issued
-automatically. This is also what makes Access possible in step 2: Access can
-only protect hostnames whose traffic passes through Cloudflare.
+automatically.
+
+You do not have to do this before setting up login. Access can protect the
+`workers.dev` URL on its own, so you can get Facebook sign-in working and test
+it end to end before moving any DNS.
 
 > **Moving off Vercel?** Add the custom domain on Cloudflare _after_ removing
 > it from the Vercel project, or the DNS record will conflict.
@@ -78,10 +81,13 @@ visitors re-download only what actually changed.
 
 ## 2. Login with Facebook
 
-Cloudflare Access sits in front of the site. Someone opening
-`hoststats.brignano.io` gets a Cloudflare login screen, signs in with Facebook,
-and only reaches the app if their email is on your list. Nobody else gets
-through, and the app itself needs no auth code at all.
+Cloudflare Access sits in front of the site. Someone opening it gets a
+Cloudflare login screen, signs in with Facebook, and only reaches the app if
+their email is on your list. Nobody else gets through, and the app itself needs
+no auth code at all.
+
+This works on the `workers.dev` URL as well as a custom domain, so do it first
+and move DNS later.
 
 This is on the **Zero Trust free plan** — up to 50 users at no cost.
 
@@ -137,16 +143,22 @@ asks for `public_profile` and `email`, which every app gets by default.
 
 ### Step 5 — Protect the site
 
-1. **Zero Trust → Access controls → Applications → Add an application →
-   Self-hosted**.
-2. **Application name**: HostStats.
-3. **Public hostname**: `hoststats.brignano.io`.
-4. Under **Access policies**, create a policy:
-   - **Action**: Allow
-   - **Include** → **Emails** → add each family member's email, one per entry.
-5. Under login methods, select **Facebook**. Turn off the others unless you
-   want them as a backup.
-6. Save.
+The quickest route protects the Worker itself, which covers its `workers.dev`
+URL, any custom domain you add later, and preview URLs — all at once, with
+nothing to keep in sync when domains change.
+
+1. Cloudflare dashboard → **Workers & Pages** → **hoststats** → **Access**.
+2. Select **Protect this Worker**, and choose production (add previews too if
+   you want those private).
+3. Choose who can sign in: **email address**, and add each family member's.
+4. Select **Facebook** as the login method. Turn off the others unless you want
+   them as a backup.
+5. Save.
+
+To protect one specific hostname instead — for example only
+`hoststats.brignano.io`, leaving `workers.dev` open — create a **self-hosted
+application** under **Zero Trust → Access controls → Applications** with that
+hostname as the application domain, and attach the same Allow policy.
 
 Access is deny-by-default: anyone who doesn't match an Allow policy is refused,
 so you never have to write a deny rule.
