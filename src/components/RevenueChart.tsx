@@ -10,6 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { MonthlyRevenue } from "@/lib/models";
+import { formatMoneyAxis, formatMoneyExact } from "@/lib/format";
 
 interface Props {
   data: MonthlyRevenue[];
@@ -31,8 +32,8 @@ export default function RevenueChart({ data }: Props) {
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(v) => `$${v}`} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(v: number) => [`$${v.toFixed(2)}`, "Earnings"]} />
+          <YAxis tickFormatter={formatMoneyAxis} tick={{ fontSize: 12 }} />
+          <Tooltip formatter={(v: number) => [formatMoneyExact(v), "Earnings"]} />
           <Area
             type="monotone"
             dataKey="revenue"

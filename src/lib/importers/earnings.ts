@@ -1,5 +1,6 @@
-import Papa from "papaparse";
 import { Payout } from "../models";
+import { parseDate } from "../dates";
+import { parseCsv } from "./csv";
 
 const COLUMN_MAP: Record<string, string[]> = {
   date: ["date", "transaction date", "payout date", "paid date", "paid on"],
@@ -33,12 +34,6 @@ function findColumn(
   );
 }
 
-function parseDate(raw: string): Date {
-  const d = new Date(raw.trim());
-  if (isNaN(d.getTime())) throw new Error(`Cannot parse date: "${raw}"`);
-  return d;
-}
-
 export function isEarningsCSV(headers: string[]): boolean {
   const lower = headers.map((h) => h.toLowerCase().trim());
   const hasAmount = COLUMN_MAP.amount.some((s) => lower.includes(s));
@@ -51,10 +46,7 @@ export function isEarningsCSV(headers: string[]): boolean {
 }
 
 export function parseEarningsCSV(csvText: string): Payout[] {
-  const { data, errors } = Papa.parse<Record<string, string>>(csvText, {
-    header: true,
-    skipEmptyLines: true,
-  });
+  const { data, errors } = parseCsv(csvText);
 
   if (errors.length && data.length === 0) {
     throw new Error(`CSV parse error: ${errors[0].message}`);

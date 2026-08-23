@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { parseReservationsCSV, isReservationsCSV } from "@/lib/importers/reservations";
 import { parseEarningsCSV, isEarningsCSV } from "@/lib/importers/earnings";
+import { parseDate } from "@/lib/dates";
 
 const FIXTURES = join(__dirname, "../../fixtures");
 
@@ -21,6 +22,28 @@ describe("isEarningsCSV", () => {
   });
 });
 
+describe("parseDate", () => {
+  it("reads a calendar date as local midnight, not UTC", () => {
+    const d = parseDate("2024-01-12");
+    expect(d.getFullYear()).toBe(2024);
+    expect(d.getMonth()).toBe(0);
+    expect(d.getDate()).toBe(12);
+    expect(d.getHours()).toBe(0);
+  });
+
+  it("handles US-style slash dates", () => {
+    const d = parseDate("01/12/2024");
+    expect(d.getFullYear()).toBe(2024);
+    expect(d.getMonth()).toBe(0);
+    expect(d.getDate()).toBe(12);
+  });
+
+  it("throws on junk", () => {
+    expect(() => parseDate("not a date")).toThrow(/cannot parse date/i);
+    expect(() => parseDate("")).toThrow(/cannot parse date/i);
+  });
+});
+
 describe("parseReservationsCSV", () => {
   let csv: string;
   beforeAll(() => {
@@ -29,19 +52,26 @@ describe("parseReservationsCSV", () => {
 
   it("parses all rows", () => {
     const rows = parseReservationsCSV(csv);
-    expect(rows).toHaveLength(10);
+    expect(rows).toHaveLength(46);
   });
 
   it("parses check-in dates correctly", () => {
     const rows = parseReservationsCSV(csv);
     expect(rows[0].checkIn.getFullYear()).toBe(2024);
     expect(rows[0].checkIn.getMonth()).toBe(0); // January
-    expect(rows[0].checkIn.getDate()).toBe(5);
+    expect(rows[0].checkIn.getDate()).toBe(12);
   });
 
   it("parses nights", () => {
     const rows = parseReservationsCSV(csv);
-    expect(rows[0].nights).toBe(3);
+    expect(rows[0].nights).toBe(2);
+  });
+
+  it("derives nights from dates when the column is absent", () => {
+    const rows = parseReservationsCSV(
+      "Confirmation Code,Check-in,Check-out\nABC123,2024-03-01,2024-03-05\n"
+    );
+    expect(rows[0].nights).toBe(4);
   });
 
   it("parses status", () => {
@@ -52,7 +82,12 @@ describe("parseReservationsCSV", () => {
 
   it("parses payout amount", () => {
     const rows = parseReservationsCSV(csv);
-    expect(rows[0].payoutAmount).toBe(320);
+    expect(rows[0].payoutAmount).toBe(245);
+  });
+
+  it("parses the confirmation code", () => {
+    const rows = parseReservationsCSV(csv);
+    expect(rows[0].id).toBe("HMFG8K2P3Q");
   });
 
   it("throws on missing required columns", () => {
@@ -68,12 +103,12 @@ describe("parseEarningsCSV", () => {
 
   it("parses all rows", () => {
     const rows = parseEarningsCSV(csv);
-    expect(rows).toHaveLength(10);
+    expect(rows).toHaveLength(104);
   });
 
   it("parses positive amounts", () => {
     const rows = parseEarningsCSV(csv);
-    expect(rows[0].amount).toBe(320);
+    expect(rows[0].amount).toBe(245);
     expect(rows[0].type).toBe("Payout");
   });
 
@@ -81,11 +116,15 @@ describe("parseEarningsCSV", () => {
     const rows = parseEarningsCSV(csv);
     const adj = rows.find((r) => r.amount < 0);
     expect(adj).toBeDefined();
-    expect(adj!.amount).toBe(-25);
+    expect(adj!.amount).toBe(-120);
   });
 
   it("parses confirmation codes", () => {
     const rows = parseEarningsCSV(csv);
-    expect(rows[0].confirmationCode).toBe("HMABCDE123");
+    expect(rows[0].confirmationCode).toBe("HMFG8K2P3Q");
+  });
+
+  it("throws on missing required columns", () => {
+    expect(() => parseEarningsCSV("foo,bar\n1,2")).toThrow(/required column/i);
   });
 });
