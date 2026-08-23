@@ -9,8 +9,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "jest --passWithNoTests",
-    "deploy": "npm run build && wrangler deploy",
-    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && npx wrangler deploy",
+    "preview": "npm run build && npx wrangler dev",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
