@@ -27,8 +27,11 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
   return (
     <div
       {...getRootProps()}
+      aria-label="Upload your Airbnb CSV exports"
+      aria-busy={loading}
       className={`
         border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors min-h-[220px] flex flex-col items-center justify-center
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2
         ${isDragActive ? "border-brand bg-red-50" : "border-gray-300 bg-white hover:border-brand hover:bg-red-50"}
         ${loading ? "opacity-50 cursor-not-allowed" : ""}
       `}
@@ -36,7 +39,9 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
       <input {...getInputProps()} />
       <div className="flex-1 flex flex-col items-center justify-center">
         {loading ? (
-          <p className="text-lg text-gray-500">⏳ Processing your files…</p>
+          <p className="text-lg text-gray-500" role="status">
+            ⏳ Processing your files…
+          </p>
         ) : isDragActive ? (
           <p className="text-lg text-brand font-medium">Drop them here! 📂</p>
         ) : (
@@ -59,7 +64,7 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
             e.stopPropagation();
             onCancel();
           }}
-          className="mt-4 text-sm text-gray-400 hover:text-gray-600 underline"
+          className="mt-4 text-sm text-gray-500 hover:text-gray-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded px-2 py-1"
         >
           Cancel
         </button>

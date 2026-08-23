@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "hoststats",
+  "compatibility_date": "2026-08-23",
+
+  // Pure static site: no Worker script, just the Next.js export in ./out.
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

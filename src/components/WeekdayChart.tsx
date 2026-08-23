@@ -10,6 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { WeekdayOccupancy } from "@/lib/models";
+import { formatCount } from "@/lib/format";
 
 interface Props {
   data: WeekdayOccupancy[];
@@ -26,7 +27,7 @@ export default function WeekdayChart({ data }: Props) {
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="weekday" tick={{ fontSize: 12 }} />
           <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(v: number) => [v, "Booked nights"]} />
+          <Tooltip formatter={(v: number) => [formatCount(v), "Booked nights"]} />
           <Bar dataKey="bookedNights" fill="#3B82F6" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

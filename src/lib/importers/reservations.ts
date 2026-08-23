@@ -1,5 +1,6 @@
-import Papa from "papaparse";
 import { Reservation } from "../models";
+import { parseDate } from "../dates";
+import { parseCsv } from "./csv";
 
 /** Synonyms for each canonical column name */
 const COLUMN_MAP: Record<string, string[]> = {
@@ -66,12 +67,6 @@ function findColumn(
   );
 }
 
-function parseDate(raw: string): Date {
-  const d = new Date(raw.trim());
-  if (isNaN(d.getTime())) throw new Error(`Cannot parse date: "${raw}"`);
-  return d;
-}
-
 function nightsBetween(checkIn: Date, checkOut: Date): number {
   const ms = checkOut.getTime() - checkIn.getTime();
   return Math.round(ms / (1000 * 60 * 60 * 24));
@@ -85,10 +80,7 @@ export function isReservationsCSV(headers: string[]): boolean {
 }
 
 export function parseReservationsCSV(csvText: string): Reservation[] {
-  const { data, errors } = Papa.parse<Record<string, string>>(csvText, {
-    header: true,
-    skipEmptyLines: true,
-  });
+  const { data, errors } = parseCsv(csvText);
 
   if (errors.length && data.length === 0) {
     throw new Error(`CSV parse error: ${errors[0].message}`);

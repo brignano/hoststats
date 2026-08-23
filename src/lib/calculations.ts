@@ -5,6 +5,7 @@ import {
   WeekdayOccupancy,
   MonthlyRevenue,
 } from "./models";
+import { dayKey, monthKey } from "./dates";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_NAMES = [
@@ -21,11 +22,6 @@ const MONTH_NAMES = [
   "Nov",
   "Dec",
 ];
-
-/** Return "YYYY-MM" key */
-function monthKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
 
 function monthLabel(date: Date): string {
   return `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
@@ -63,7 +59,7 @@ export function calcMonthlyOccupancy(
     for (const night of stayNights(r.checkIn, r.checkOut)) {
       const key = monthKey(night);
       if (!bookedByMonth.has(key)) bookedByMonth.set(key, new Set());
-      bookedByMonth.get(key)!.add(night.toISOString().slice(0, 10));
+      bookedByMonth.get(key)!.add(dayKey(night));
     }
   }
 

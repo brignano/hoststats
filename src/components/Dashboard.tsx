@@ -10,6 +10,7 @@ import {
   totalBookedNights,
   avgOccupancyPct,
 } from "@/lib/calculations";
+import { formatCount, formatMoney } from "@/lib/format";
 import MetricCard from "./MetricCard";
 import OccupancyChart from "./OccupancyChart";
 import WeekdayChart from "./WeekdayChart";
@@ -20,9 +21,16 @@ interface Props {
   onReset: () => void;
   onAddMore: () => void;
   disableAddMore?: boolean;
+  isDemo?: boolean;
 }
 
-export default function Dashboard({ data, onReset, onAddMore, disableAddMore }: Props) {
+export default function Dashboard({
+  data,
+  onReset,
+  onAddMore,
+  disableAddMore,
+  isDemo,
+}: Props) {
   const { reservations, payouts } = data;
 
   const monthlyOccupancy = useMemo(
@@ -53,28 +61,38 @@ export default function Dashboard({ data, onReset, onAddMore, disableAddMore }: 
             <button
               onClick={onAddMore}
               disabled={disableAddMore}
-              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-brand hover:text-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-600"
+              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-brand hover:text-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-600"
             >
               ➕ Add more files
             </button>
             <button
               onClick={onReset}
-              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-red-400 hover:text-red-500 transition-colors"
+              className="text-sm px-4 py-2 rounded-xl border border-gray-300 hover:border-red-400 hover:text-red-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
               ↩ Start over
             </button>
           </div>
         </div>
 
+        {isDemo && (
+          <div
+            role="status"
+            className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm"
+          >
+            👀 <strong>This is example data</strong> — it is not your listing.
+            Press <em>Start over</em> to upload your own Airbnb export.
+          </div>
+        )}
+
         {/* Summary cards */}
         {reservations.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
             <MetricCard
               label="Total Bookings"
-              value={reservations.length}
+              value={formatCount(reservations.length)}
               highlight
             />
-            <MetricCard label="Nights Booked" value={totalNights} />
+            <MetricCard label="Nights Booked" value={formatCount(totalNights)} />
             <MetricCard
               label="Avg Occupancy"
               value={`${avgOcc}%`}
@@ -87,7 +105,7 @@ export default function Dashboard({ data, onReset, onAddMore, disableAddMore }: 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <MetricCard
               label="Total Earnings"
-              value={`$${revenue.toFixed(2)}`}
+              value={formatMoney(revenue)}
               highlight
             />
           </div>
