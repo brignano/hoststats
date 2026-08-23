@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Dates are parsed from timezone-less CSV cells, so the stats have to
+      # come out the same either side of UTC.
+      - name: Test (UTC)
+        run: npm test
+        env:
+          TZ: UTC
+
+      - name: Test (America/New_York)
+        run: npm test
+        env:
+          TZ: America/New_York
+
+      - name: Test (Pacific/Auckland)
+        run: npm test
+        env:
+          TZ: Pacific/Auckland
+
+      - name: Build
+        run: npm run build
