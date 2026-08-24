@@ -8,7 +8,7 @@ Two separate things are set up here:
 
 1. **Hosting** — put the site on Cloudflare at your own domain.
 2. **Login** — put Cloudflare Access in front of it so only the people you
-   name can open it, signing in with Facebook.
+   name can open it.
 
 They are independent. You can do (1) and leave the site public, or add (2)
 later without touching a line of code.
@@ -69,8 +69,8 @@ and proxied for you — no CNAME to copy anywhere, and the certificate is issued
 automatically.
 
 You do not have to do this before setting up login. Access can protect the
-`workers.dev` URL on its own, so you can get Facebook sign-in working and test
-it end to end before moving any DNS.
+`workers.dev` URL on its own, so you can get sign-in working and test it end to
+end before moving any DNS.
 
 > **Moving off Vercel?** Add the custom domain on Cloudflare _after_ removing
 > it from the Vercel project, or the DNS record will conflict.
@@ -89,114 +89,102 @@ visitors re-download only what actually changed.
 
 ---
 
-## 2. Login with Facebook
+## 2. Login
 
-Cloudflare Access sits in front of the site. Someone opening it gets a
-Cloudflare login screen, signs in with Facebook, and only reaches the app if
-their email is on your list. Nobody else gets through, and the app itself needs
-no auth code at all.
+Cloudflare Access sits in front of the site. Someone opening it gets a sign-in
+screen, and only reaches the app if their email is on your list. Nobody else
+gets through, and the app itself needs no auth code at all.
 
-This works on the `workers.dev` URL as well as a custom domain, so do it first
-and move DNS later.
+This works on the `workers.dev` URL as well as a custom domain, so you can set
+it up and test it before moving any DNS.
 
-This is on the **Zero Trust free plan** — up to 50 users at no cost.
+Free on the **Zero Trust free plan** — up to 50 users.
 
-### Step 1 — Find your team domain
+### Choosing a sign-in method
 
-Cloudflare dashboard → **Zero Trust** → **Settings** → **Custom Pages**, and
-look for **Team domain**. It looks like `yourteam.cloudflareaccess.com`. If you
-have never used Zero Trust, you'll be asked to pick a team name first.
+| Method           | Setup                           | Good for                                 |
+| ---------------- | ------------------------------- | ---------------------------------------- |
+| **One-time PIN** | None                            | Family and friends — recommended         |
+| **Google**       | An OAuth client in Google Cloud | People who all have Google accounts      |
+| **Facebook**     | Blocked in practice — see below | Not usable without a registered business |
 
-Your callback URL is that domain plus a fixed path:
+**Facebook does not work for a personal site.** Meta grants `public_profile`
+and `email` at _Standard Access_, which only permits sign-in by people holding
+a role on the Facebook app — admin, developer or tester. Letting anyone else
+log in needs _Advanced Access_, and that requires App Review plus Business
+Verification, which wants legal business registration documents. For a family
+dashboard that is a dead end. The alternative — adding each relative as an app
+"Tester" — makes them accept a developer invite on developers.facebook.com,
+which is worse than the problem it solves.
 
-```
-https://<your-team-name>.cloudflareaccess.com/cdn-cgi/access/callback
-```
+### One-time PIN
 
-Keep it handy — Facebook needs it in step 2.
+Cloudflare emails a six-digit code. There is no identity provider to configure,
+no app to register, and nothing for the visitor to install or approve.
 
-### Step 2 — Create the Facebook app
+1. In the Cloudflare dashboard, go to **Zero Trust** → **Integrations** →
+   **Identity providers**.
+2. Select **Add new** → **One-time PIN**. There is nothing to fill in.
 
-1. Go to [developers.facebook.com](https://developers.facebook.com/) and sign
-   in with your own Facebook account.
-2. **My Apps → Create App**.
-3. For the use case, pick **Authenticate and request data from users with
-   Facebook Login**.
-4. Give it a name your family will recognise — they will see it on the consent
-   screen. "HostStats" is fine.
-5. Once created, add the **Facebook Login** product if it isn't already there.
-6. **Facebook Login → Settings → Valid OAuth Redirect URIs**: paste the
-   callback URL from step 1. Save.
-7. **App settings → Basic**: copy the **App ID** and **App Secret**.
+That is the entire setup. Now protect the site (below).
 
-### Step 3 — Switch the app to Live
+> If anyone reports the code never arriving, it is almost always spam
+> filtering. Codes come from `noreply@notify.cloudflare.com`.
 
-This is the step everyone misses. A new Facebook app starts in **Development**
-mode, where _only_ people listed as admins, developers or testers of the app
-can log in. Your mother is none of those, so she'll hit an unhelpful error.
+### Google (optional)
 
-Flip the toggle at the top of the Facebook dashboard from **Development** to
-**Live**.
+Worth it if everyone already has a Google account and you would rather they did
+not type codes. Unlike Meta, Google treats email and profile as non-sensitive
+scopes, so this does not sit behind business verification.
 
-Facebook will ask for a privacy policy URL before it lets you go live. Any
-reachable page stating that you don't collect anything will do.
+1. Find your **team domain**: **Zero Trust** → **Settings** → **Custom Pages**
+   → **Team domain**, e.g. `yourteam.cloudflareaccess.com`. Your callback URL is
+   that domain plus `/cdn-cgi/access/callback`.
+2. In the [Google Cloud console](https://console.cloud.google.com/), create an
+   **OAuth client ID** of type _Web application_, and add that callback URL as
+   an authorised redirect URI.
+3. Back in Cloudflare: **Zero Trust** → **Integrations** → **Identity
+   providers** → **Add new** → **Google**, and paste the client ID and secret.
+4. Save, then use **Test** to confirm the round trip.
 
-You do _not_ need App Review or business verification for this. Access only
-asks for `public_profile` and `email`, which every app gets by default.
+### Protect the site
 
-### Step 4 — Add Facebook to Cloudflare
+This protects the Worker itself, which covers its `workers.dev` URL, any custom
+domain you add later, and preview URLs — all at once, with nothing to keep in
+sync when domains change.
 
-1. **Zero Trust → Integrations → Identity providers → Add new**.
-2. Choose **Facebook**.
-3. Paste the **App ID** and **App Secret**.
-4. Save, then use **Test** to confirm the round trip works before you rely on it.
-
-### Step 5 — Protect the site
-
-The quickest route protects the Worker itself, which covers its `workers.dev`
-URL, any custom domain you add later, and preview URLs — all at once, with
-nothing to keep in sync when domains change.
-
-1. Cloudflare dashboard → **Workers & Pages** → **hoststats** → **Access**.
-2. Select **Protect this Worker**, and choose production (add previews too if
-   you want those private).
-3. Choose who can sign in: **email address**, and add each family member's.
-4. Select **Facebook** as the login method. Turn off the others unless you want
-   them as a backup.
+1. **Workers & Pages** → **hoststats** → **Access**.
+2. Select **Protect this Worker**. Cover **production and previews** — a
+   preview URL serves the same app, so leaving it open defeats the point.
+3. Choose who can sign in: **email address**, and add each person's.
+4. Select the login methods you configured. Enabling more than one lets people
+   pick.
 5. Save.
+
+Access is deny-by-default: anyone who does not match an Allow policy is
+refused, so you never write a deny rule.
+
+Open the site in a private window to check you get the sign-in screen.
 
 To protect one specific hostname instead — for example only
 `hoststats.brignano.io`, leaving `workers.dev` open — create a **self-hosted
-application** under **Zero Trust → Access controls → Applications** with that
-hostname as the application domain, and attach the same Allow policy.
+application** under **Zero Trust** → **Access controls** → **Applications**
+with that hostname as the application domain, and attach the same policy.
 
-Access is deny-by-default: anyone who doesn't match an Allow policy is refused,
-so you never have to write a deny rule.
+### Adding people later
 
-Open the site in a private window to check you get the login screen.
-
-### The catch worth knowing about
-
-**Access matches on email, and Facebook doesn't always supply one.** Accounts
-created with only a phone number, or where the user declines to share their
-email on the consent screen, come back with no email address — and an
-email-based policy can't match them. You'll see them bounce off the login
-screen with no obvious reason.
-
-If that happens to someone, the fastest fix is to add **One-time PIN** as a
-second login method. Cloudflare emails them a six-digit code; no Facebook app,
-no consent screen, nothing to install. For a handful of relatives this is often
-less friction than Facebook, so it's worth offering both and letting people
-pick.
+For a handful of addresses, editing the policy is fine. Past a dozen or so,
+build a reusable group under **Zero Trust** → **Access controls** → **Groups**,
+then attach that group to every site instead of maintaining parallel lists.
 
 ### Sanity checks
 
-| Symptom                              | Cause                                                                                    |
-| ------------------------------------ | ---------------------------------------------------------------------------------------- |
-| "App not active" / "cannot load app" | The Facebook app is still in Development mode (step 3)                                   |
-| `redirect_uri` mismatch              | The callback URL in Facebook doesn't exactly match the team domain, including `https://` |
-| Login succeeds, then Access denies   | The email Facebook returned isn't in the Allow policy — or Facebook returned none at all |
-| No login screen at all               | The hostname isn't proxied through Cloudflare, or the Access app hostname is a typo      |
+| Symptom                                | Cause                                                                                                    |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| No sign-in screen at all               | The hostname is not proxied through Cloudflare, or the Access application is not attached to this Worker |
+| Signed in, then denied                 | That email is not in the Allow policy                                                                    |
+| PIN email never arrives                | Spam filtering — allowlist `noreply@notify.cloudflare.com`                                               |
+| Google returns `redirect_uri_mismatch` | The callback URL in Google Cloud does not exactly match the team domain, including `https://`            |
 
 ---
 
