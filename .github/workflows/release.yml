@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+# Needed to create the release and its tag-associated notes.
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # A tag that disagrees with package.json is what makes a releases page
+      # start lying, and it is invisible until someone checks. Fail here,
+      # before anything is published, rather than leaving a wrong version
+      # attached to a real release.
+      - name: Check the tag matches package.json
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match package.json" \
+                 "version ${pkg}. Bump package.json, or delete and re-cut the tag."
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # The tagged tree gets the same timezone spread CI runs on main: a
+      # release is exactly when a hemisphere-specific date bug would be
+      # worst to ship.
+      - name: Test (UTC)
+        run: npm test
+        env:
+          TZ: UTC
+
+      - name: Test (America/New_York)
+        run: npm test
+        env:
+          TZ: America/New_York
+
+      - name: Test (Pacific/Auckland)
+        run: npm test
+        env:
+          TZ: Pacific/Auckland
+
+      - name: Build
+        run: npm run build
+
+      - name: Create the GitHub release
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -97,6 +97,25 @@ Full walkthrough — custom domain, sign-in options, and the gotchas — is in
 
 ---
 
+## 🏷️ Cutting a Release
+
+Deploying and releasing are separate: `main` goes live on every merge, while a
+tag marks a named point you can come back to.
+
+```bash
+# 1. Bump the version in package.json, commit it on main
+# 2. Tag that commit and push the tag
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+`.github/workflows/release.yml` picks up any `v*` tag, re-runs the full check
+suite against the tagged tree, and publishes a GitHub release with generated
+notes. It refuses to publish if the tag and `package.json` version disagree —
+that mismatch is invisible once a release page exists, so it fails first.
+
+---
+
 ## 🗂️ Project Structure
 
 ```
