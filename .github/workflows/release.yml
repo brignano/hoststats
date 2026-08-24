@@ -4,9 +4,9 @@ on:
   push:
     tags: ["v*"]
 
-# Needed to create the release and its tag-associated notes.
+# Checkout only. This job creates nothing, so it needs no write scope.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
@@ -66,19 +66,16 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Draft, not published. The release page is where changes get documented
-      # for consumers, and those notes are written by hand — so the workflow's
-      # job is to have a draft waiting with the raw material in it, never to
-      # publish prose nobody wrote. --generate-notes seeds it with the merged
-      # PRs since the last tag; that is the input to the notes, not the notes.
-      - name: Open a draft release
+      # This job verifies a release; it does not create one. Releases are cut
+      # from the Releases page, and publishing there is what creates the tag —
+      # so by the time this runs the release already exists. A `gh release
+      # create` here would find it and fail on every single release.
+      #
+      # Verification is therefore after the fact. It cannot block a bad release,
+      # but it does say loudly that one went out, which is the difference
+      # between finding out now and finding out from whoever hit the bug.
+      - name: Report the result
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
-            --draft \
-            --generate-notes \
-            --verify-tag
-          echo "::notice::Draft release $GITHUB_REF_NAME created. Write the" \
-               "notes and publish it from the Releases page."
-        env:
-          GH_TOKEN: ${{ github.token }}
+          echo "::notice::${GITHUB_REF_NAME} verified: version matches" \
+               "package.json, and lint, typecheck, tests (3 timezones) and" \
+               "build all pass against the tagged tree."

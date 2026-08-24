@@ -107,20 +107,20 @@ changes are documented. Anyone tracking HostStats reads the release page to see
 what is new — so the notes are written by hand, for that reader, and there is no
 `CHANGELOG.md` duplicating them.
 
-```bash
-# 1. Bump the version in package.json, commit it on main
-# 2. Tag that commit and push the tag
-git tag v0.2.0
-git push origin v0.2.0
-# 3. Write the notes on the draft release and publish it
-```
+1. Bump `version` in `package.json` and merge it to `main`.
+2. Go to **[Releases → Draft a new release](https://github.com/brignano/hoststats/releases/new)**.
+3. Under **Choose a tag**, type the new tag (`v0.2.0`) and pick _Create new tag
+   on publish_. **Generate release notes** gives you the merged PRs since the
+   last tag — raw material, not the notes.
+4. Rewrite it into what someone using HostStats would want to know, and publish.
 
-`.github/workflows/release.yml` picks up any `v*` tag, re-runs the full check
-suite against the tagged tree, and opens a **draft** release seeded with the
-merged PRs since the last tag. Rewrite that list into notes and hit publish —
-nothing goes public until you do. The workflow refuses to go any further if the
-tag and `package.json` version disagree, since that mismatch is invisible once a
-release page exists.
+Publishing creates the tag, which starts
+`.github/workflows/release.yml`. That job **verifies, it does not create**: it
+re-runs lint, typecheck, the three timezone test passes and the build against
+the tagged tree, and fails if the tag and `package.json` version disagree — a
+mismatch that is invisible once a release page exists. The check lands after
+publication, so treat a red run as "pull that release", not "the release was
+blocked".
 
 ---
 
