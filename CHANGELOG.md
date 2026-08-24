@@ -43,3 +43,10 @@ HostStats takes the CSV exports from your Airbnb hosting dashboard and turns the
 ### Deploying
 
 Pushes to `main` deploy automatically. Full walkthrough — custom domain, sign-in options, and the gotchas — is in [docs/DEPLOYING.md](https://github.com/brignano/hoststats/blob/main/docs/DEPLOYING.md).
+
+### License
+
+MIT. The README had called the project open-source and linked a `LICENSE` that
+was never committed, which left the repository under default copyright — all
+rights reserved — despite saying otherwise. The file now exists and
+`package.json` declares `"license": "MIT"` to match.
