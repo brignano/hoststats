@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import UploadDropzone from "@/components/UploadDropzone";
+import { AlertCircleIcon } from "@/components/icons";
 import { ParsedData } from "@/lib/models";
 import { parseFile } from "@/lib/importers";
 
@@ -11,18 +12,15 @@ import { parseFile } from "@/lib/importers";
 const Dashboard = dynamic(() => import("@/components/Dashboard"), {
   ssr: false,
   loading: () => (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <p className="text-lg text-gray-500" role="status">
+    <main className="min-h-screen flex items-center justify-center px-s4">
+      <p className="text-lg text-slate" role="status">
         Building your dashboard…
       </p>
     </main>
   ),
 });
 
-const SAMPLE_FILES = [
-  "/samples/sample-reservations.csv",
-  "/samples/sample-earnings.csv",
-];
+const SAMPLE_FILES = ["/samples/sample-reservations.csv", "/samples/sample-earnings.csv"];
 
 export default function Home() {
   const [data, setData] = useState<ParsedData | null>(null);
@@ -111,26 +109,24 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
+    <main className="min-h-screen flex flex-col items-center justify-center px-s4 py-s7">
       <div className="max-w-xl w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">🏡 HostStats</h1>
-          <p className="text-xl text-gray-600">
-            See how your Airbnb is doing — no account needed.
-          </p>
-          <p className="text-base text-gray-500 mt-2">
-            Upload your Airbnb CSV exports and instantly get your stats.
-            Everything stays on your device.
+        <div className="text-center mb-s6">
+          <h1 className="text-3xl font-semibold tracking-tight mb-s2">HostStats</h1>
+          <p className="text-lg text-ink-soft">See how your Airbnb is doing — no account needed.</p>
+          <p className="text-sm text-slate mt-s2">
+            Upload your Airbnb CSV exports and instantly get your stats. Everything stays on your
+            device.
           </p>
         </div>
 
         <div aria-live="polite">
           {error && (
-            <div
-              role="alert"
-              className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm whitespace-pre-line"
-            >
-              <strong>Oops!</strong> {error}
+            <div role="alert" className="state state-danger mb-s4 whitespace-pre-line">
+              <AlertCircleIcon className="state-icon" />
+              <span>
+                <strong className="font-semibold">That didn&rsquo;t work.</strong> {error}
+              </span>
             </div>
           )}
         </div>
@@ -142,54 +138,51 @@ export default function Home() {
         />
 
         {!addingMore && (
-          <div className="mt-4 text-center">
+          <div className="mt-s3 text-center">
             <button
               type="button"
               onClick={handleDemo}
               disabled={loading}
-              className="text-base px-5 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:border-brand hover:text-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm px-s4 py-s3 rounded border border-line-strong bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:cursor-not-allowed"
             >
-              👀 Not ready yet? See it with example data
+              Not ready yet? See it with example data
             </button>
           </div>
         )}
 
-        <details className="mt-6 bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-600">
-          <summary className="cursor-pointer font-medium text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded">
+        <details className="mt-s5 bg-card rounded border border-line p-s4 text-sm text-ink-soft shadow-1">
+          <summary className="cursor-pointer font-medium text-ink rounded-sm">
             Where do I find these files?
           </summary>
-          <ol className="mt-3 space-y-2 list-decimal list-inside">
+          <ol className="mt-s3 space-y-s2 list-decimal list-inside">
             <li>
               On a computer, sign in at{" "}
               <a
                 href="https://www.airbnb.com/hosting/reservations"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-brand"
+                className="underline text-interactive-ink hover:text-interactive-hover"
               >
                 airbnb.com/hosting
               </a>
               .
             </li>
             <li>
-              Open <strong>Reservations</strong> and click{" "}
-              <strong>Export to CSV</strong>. Save the file.
+              Open <strong className="font-medium text-ink">Reservations</strong> and click{" "}
+              <strong className="font-medium text-ink">Export to CSV</strong>. Save the file.
             </li>
             <li>
-              Open <strong>Earnings</strong> → <strong>Transaction history</strong>{" "}
-              and export that too (optional — it adds the money charts).
+              Open <strong className="font-medium text-ink">Earnings</strong> →{" "}
+              <strong className="font-medium text-ink">Transaction history</strong> and export that
+              too (optional — it adds the money charts).
             </li>
             <li>Come back here and drop both files above.</li>
           </ol>
         </details>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
-          Your files never leave your device. HostStats is not affiliated with
-          Airbnb.{" "}
-          <a
-            href="/privacy/"
-            className="underline hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
-          >
+        <p className="mt-s5 text-center text-xs text-slate">
+          Your files never leave your device. HostStats is not affiliated with Airbnb.{" "}
+          <a href="/privacy/" className="underline hover:text-ink-soft rounded-sm">
             Privacy
           </a>
         </p>

@@ -1,3 +1,104 @@
+/* The shared design system is the single source of truth for colour, type,
+   space, shape and motion. Never hardcode a hex outside it — see DESIGN.md §11
+   in @brignano/design.
+
+   HostStats is a TOOL-tier surface (like `life` and `homelab`), so it does not
+   set `tier-marketing` on <html>: compact type scale, no display face, no
+   scroll motion. */
+@import "@brignano/design/tokens.css";
+@import "@brignano/design/tokens.chart.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* next/font loads Geist and IBM Plex Mono and exposes them as
+     --font-geist / --font-plex-mono. The token keeps naming the stack; this
+     just supplies the faces it asks for, which the design system notes are
+     not yet installed on every surface. */
+  :root {
+    --sans:
+      var(--font-geist), "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+  }
+
+  html {
+    font-family: var(--sans);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-size: var(--text-base);
+    /* Tabular figures so dates, counts and money line up in a column. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Preflight hardcodes gray-400 here, per engine. Nothing in this app
+     renders a text input today, but leaving a frozen literal in place is how
+     a theme bug gets introduced later by someone adding one. */
+  ::placeholder,
+  ::-moz-placeholder,
+  ::-webkit-input-placeholder {
+    color: var(--slate);
+    opacity: 1;
+  }
+
+  /* Focus is always visible — DESIGN.md §4. Never remove it. */
+  :focus-visible {
+    outline: 2px solid var(--i-ink);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* A state wash: 12% tint in light, 20% in dark, with the text kept near-ink
+     so it stays legible. Colour is a surface, not text — DESIGN.md §3. */
+  .state {
+    display: flex;
+    gap: var(--s2);
+    align-items: flex-start;
+    padding: var(--s3) var(--s4);
+    border-radius: var(--radius);
+    border: 1px solid;
+    font-size: var(--text-sm);
+    color: var(--ink);
+  }
+
+  .state-attention {
+    background: var(--attention-surface);
+    border-color: var(--attention-line);
+  }
+
+  .state-danger {
+    background: var(--danger-surface);
+    border-color: var(--danger-line);
+  }
+
+  .state-info {
+    background: var(--info-surface);
+    border-color: var(--info-line);
+  }
+
+  /* The icon carries the state in greyscale and forced-colours mode, so the
+     colour is never the only signal — DESIGN.md §3. */
+  .state-icon {
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 1px;
+  }
+
+  .state-attention .state-icon {
+    color: var(--attention-ink);
+  }
+
+  .state-danger .state-icon {
+    color: var(--danger-ink);
+  }
+
+  .state-info .state-icon {
+    color: var(--info-ink);
+  }
+}

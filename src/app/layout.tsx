@@ -1,5 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import { Geist, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+
+// The design system's --sans / --mono name these faces. next/font self-hosts
+// them at build time, so there is no runtime request to a font CDN — which
+// also keeps the CSP in public/_headers tight.
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hoststats.brignano.io";
 const TITLE = "HostStats – Your Airbnb at a Glance";
@@ -40,7 +57,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF385C",
+  // The one place a literal is unavoidable: <meta name="theme-color"> is read
+  // by the browser chrome before any CSS is parsed, so it cannot reference a
+  // custom property. These mirror --bg per theme (--n-25 / --n-0) and must be
+  // kept in step with tokens.css by hand.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d0d0f" },
+  ],
   width: "device-width",
   initialScale: 1,
   // Let people pinch-zoom; a lot of hosts read this on a phone.
@@ -53,10 +77,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased bg-gray-50 text-gray-900">
-        {children}
-      </body>
+    <html lang="en" className={`${geist.variable} ${plexMono.variable}`}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

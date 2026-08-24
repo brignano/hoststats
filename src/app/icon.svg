@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="14" fill="#FF385C"/>
+  <!-- A favicon is a separate document and cannot read the page's custom
+       properties, so these two literals mirror --mark from @brignano/design:
+       #b4741f light, #e0a44f dark. Keep them in step with tokens.css. -->
+  <style>
+    .tile { fill: #b4741f }
+    @media (prefers-color-scheme: dark) { .tile { fill: #e0a44f } }
+  </style>
+  <rect class="tile" width="64" height="64" rx="14"/>
   <path d="M32 14 L52 32 H46 V50 H36 V38 H28 V50 H18 V32 H12 Z" fill="#fff"/>
   <rect x="40" y="16" width="5" height="10" fill="#fff"/>
 </svg>

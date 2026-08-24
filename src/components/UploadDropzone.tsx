@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { UploadIcon } from "./icons";
 
 interface Props {
   onFiles: (files: File[]) => void;
@@ -30,30 +31,32 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
       aria-label="Upload your Airbnb CSV exports"
       aria-busy={loading}
       className={`
-        border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors min-h-[220px] flex flex-col items-center justify-center
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2
-        ${isDragActive ? "border-brand bg-red-50" : "border-gray-300 bg-white hover:border-brand hover:bg-red-50"}
-        ${loading ? "opacity-50 cursor-not-allowed" : ""}
+        border border-dashed rounded-lg p-s7 text-center cursor-pointer min-h-[220px]
+        flex flex-col items-center justify-center
+        transition-colors duration-fast ease-brand
+        ${
+          isDragActive
+            ? "border-interactive bg-interactive-surface"
+            : "border-line-strong bg-card hover:bg-surface-hover"
+        }
+        ${loading ? "opacity-60 cursor-not-allowed" : ""}
       `}
     >
       <input {...getInputProps()} />
       <div className="flex-1 flex flex-col items-center justify-center">
         {loading ? (
-          <p className="text-lg text-gray-500" role="status">
-            ⏳ Processing your files…
+          <p className="text-base text-ink-soft" role="status">
+            Processing your files…
           </p>
         ) : isDragActive ? (
-          <p className="text-lg text-brand font-medium">Drop them here! 📂</p>
+          <p className="text-base font-medium text-interactive-ink">Drop them here</p>
         ) : (
           <>
-            <div className="text-5xl mb-4">📄</div>
-            <p className="text-xl font-semibold text-gray-700">
-              Drop your CSVs here
-            </p>
-            <p className="text-gray-400 mt-2">or click to browse files</p>
-            <p className="text-sm text-gray-400 mt-4">
-              You can upload both your Reservations CSV and Earnings CSV at the
-              same time
+            <UploadIcon className="w-8 h-8 mb-s3 text-slate" />
+            <p className="text-lg font-medium text-ink">Drop your CSVs here</p>
+            <p className="text-sm text-slate mt-s1">or click to browse files</p>
+            <p className="text-xs text-slate mt-s4 max-w-[34ch]">
+              You can upload both your Reservations CSV and Earnings CSV at the same time
             </p>
           </>
         )}
@@ -64,7 +67,7 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
             e.stopPropagation();
             onCancel();
           }}
-          className="mt-4 text-sm text-gray-500 hover:text-gray-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded px-2 py-1"
+          className="mt-s4 text-sm text-ink-soft underline hover:text-ink rounded-sm px-s2 py-s1"
         >
           Cancel
         </button>
