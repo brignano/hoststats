@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@brignano/design": "git+https://github.com/brignano/design.git#29b86e8087707249ac174641be1b7bc8af34b431",
     "next": "16.3.2",
     "papaparse": "^5.4.1",
     "react": "^19.2.4",
