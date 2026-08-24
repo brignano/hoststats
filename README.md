@@ -82,7 +82,7 @@ npm run deploy     # Build, then deploy to Cloudflare
 ## 🚀 Deploying
 
 HostStats is hosted on **Cloudflare Workers** static assets, and family access is
-gated by **Cloudflare Access** with Facebook login.
+gated by **Cloudflare Access** — a one-time emailed code, or Google sign-in.
 
 ```bash
 npx wrangler login
@@ -92,7 +92,7 @@ npm run deploy
 Pushes to `main` deploy automatically via `.github/workflows/deploy.yml` (needs
 the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets).
 
-Full walkthrough — custom domain, Facebook SSO, and the gotchas — is in
+Full walkthrough — custom domain, sign-in options, and the gotchas — is in
 **[docs/DEPLOYING.md](docs/DEPLOYING.md)**.
 
 ---
@@ -113,7 +113,7 @@ src/
 
 public/samples/       # Example CSVs powering the in-app demo
 fixtures/             # Sample CSV files for testing
-docs/DEPLOYING.md     # Cloudflare hosting + Facebook SSO guide
+docs/DEPLOYING.md     # Cloudflare hosting + Access sign-in guide
 wrangler.jsonc        # Cloudflare Workers config
 ```
 

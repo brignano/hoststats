@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * A real privacy policy page. Facebook requires a reachable privacy policy URL
- * before an app can be switched to Live, and any public site should have one.
+ * A real privacy policy page. Any public site should have one, and OAuth
+ * providers require a reachable privacy policy URL before they will let an
+ * app serve the general public.
  */
 export default function PrivacyPolicy() {
   return (
@@ -22,13 +23,10 @@ export default function PrivacyPolicy() {
 
         <div className="space-y-6 text-gray-700 leading-relaxed">
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              The short version
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">The short version</h2>
             <p>
-              HostStats does not collect, transmit, store, or share any of your
-              data. Your spreadsheets are read by your own browser and never
-              leave your device.
+              HostStats does not collect, transmit, store, or share any of your data. Your
+              spreadsheets are read by your own browser and never leave your device.
             </p>
           </section>
 
@@ -37,56 +35,47 @@ export default function PrivacyPolicy() {
               What happens to the files you upload
             </h2>
             <p>
-              When you drop a CSV onto HostStats, your browser reads it locally
-              and calculates your statistics on your own machine. The file is
-              never sent to a server, because there is no server to send it to
-              — HostStats is a static website with no backend and no database.
+              When you drop a CSV onto HostStats, your browser reads it locally and calculates your
+              statistics on your own machine. The file is never sent to a server, because there is
+              no server to send it to — HostStats is a static website with no backend and no
+              database.
             </p>
             <p className="mt-3">
-              Nothing is written to disk. Close or refresh the tab and the data
-              is gone. There is no &ldquo;delete my data&rdquo; process because
-              nothing was ever kept.
+              Nothing is written to disk. Close or refresh the tab and the data is gone. There is no
+              &ldquo;delete my data&rdquo; process because nothing was ever kept.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Analytics and tracking
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Analytics and tracking</h2>
             <p>
-              There are none. No analytics, no tracking pixels, no advertising
-              identifiers, no third-party scripts, and no cookies set by the
-              application.
+              There are none. No analytics, no tracking pixels, no advertising identifiers, no
+              third-party scripts, and no cookies set by the application.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Signing in
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Signing in</h2>
             <p>
-              This site may sit behind Cloudflare Access, which asks you to sign
-              in before the page loads. If you sign in with a third-party
-              provider such as Facebook, that provider tells Cloudflare your
-              name and email address so it can check you are on the guest list.
+              This site may sit behind Cloudflare Access, which asks you to sign in before the page
+              loads. That is usually a one-time code emailed to you; it may instead be a third-party
+              provider such as Google, which tells Cloudflare your name and email address so it can
+              check you are on the guest list.
             </p>
             <p className="mt-3">
-              That exchange happens entirely between your identity provider and
-              Cloudflare. HostStats itself does not receive, read, or store your
-              identity, and the sign-in check happens before the application
-              runs at all. It never has access to your spreadsheets.
+              Either way the exchange happens between Cloudflare and your email or identity
+              provider. HostStats itself does not receive, read, or store your identity, and the
+              sign-in check happens before the application runs at all. It never has access to your
+              spreadsheets.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Hosting
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Hosting</h2>
             <p>
-              The site is served as static files by Cloudflare. As with any web
-              host, Cloudflare processes standard request data such as IP
-              addresses in order to deliver the page and protect against abuse.
-              This is handled under{" "}
+              The site is served as static files by Cloudflare. As with any web host, Cloudflare
+              processes standard request data such as IP addresses in order to deliver the page and
+              protect against abuse. This is handled under{" "}
               <a
                 href="https://www.cloudflare.com/privacypolicy/"
                 target="_blank"
@@ -100,9 +89,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Contact
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Contact</h2>
             <p>
               Questions about this policy can go to{" "}
               <a href="mailto:hi@brignano.io" className="text-brand underline">
@@ -113,12 +100,10 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Not affiliated with Airbnb
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Not affiliated with Airbnb</h2>
             <p>
-              HostStats is an independent open-source tool. It is not affiliated
-              with, endorsed by, or sponsored by Airbnb, Inc.
+              HostStats is an independent open-source tool. It is not affiliated with, endorsed by,
+              or sponsored by Airbnb, Inc.
             </p>
           </section>
         </div>
