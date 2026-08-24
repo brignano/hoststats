@@ -102,20 +102,25 @@ Full walkthrough — custom domain, sign-in options, and the gotchas — is in
 Deploying and releasing are separate: `main` goes live on every merge, while a
 tag marks a named point you can come back to.
 
+[**GitHub Releases**](https://github.com/brignano/hoststats/releases) is where
+changes are documented. Anyone tracking HostStats reads the release page to see
+what is new — so the notes are written by hand, for that reader, and there is no
+`CHANGELOG.md` duplicating them.
+
 ```bash
-# 1. Bump the version in package.json and add a `## v0.2.0` section to
-#    CHANGELOG.md, then commit both on main
+# 1. Bump the version in package.json, commit it on main
 # 2. Tag that commit and push the tag
 git tag v0.2.0
 git push origin v0.2.0
+# 3. Write the notes on the draft release and publish it
 ```
 
 `.github/workflows/release.yml` picks up any `v*` tag, re-runs the full check
-suite against the tagged tree, and publishes a GitHub release using the matching
-[CHANGELOG.md](CHANGELOG.md) section as the body (falling back to generated notes
-if there isn't one). It refuses to publish if the tag and `package.json` version
-disagree — that mismatch is invisible once a release page exists, so it fails
-first.
+suite against the tagged tree, and opens a **draft** release seeded with the
+merged PRs since the last tag. Rewrite that list into notes and hit publish —
+nothing goes public until you do. The workflow refuses to go any further if the
+tag and `package.json` version disagree, since that mismatch is invisible once a
+release page exists.
 
 ---
 

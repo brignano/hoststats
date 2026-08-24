@@ -66,39 +66,19 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Prefer the hand-written CHANGELOG section over --generate-notes. A
-      # generated list of merged PR titles describes the commits; it does not
-      # tell a visitor what the thing does or what changed for them.
-      - name: Take the release notes from CHANGELOG.md
-        id: notes
+      # Draft, not published. The release page is where changes get documented
+      # for consumers, and those notes are written by hand — so the workflow's
+      # job is to have a draft waiting with the raw material in it, never to
+      # publish prose nobody wrote. --generate-notes seeds it with the merged
+      # PRs since the last tag; that is the input to the notes, not the notes.
+      - name: Open a draft release
         run: |
-          # Stop only at the next *version* heading. A plain `^## ` test would
-          # end the section at its own first sub-heading.
-          awk -v p="## $GITHUB_REF_NAME" '
-            $0 == p || index($0, p " ") == 1 { inside = 1; next }
-            inside && /^## v[0-9]/ { exit }
-            inside { print }
-          ' CHANGELOG.md | sed -e '/./,$!d' > release-notes.md
-          if [ -s release-notes.md ]; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::No '## $GITHUB_REF_NAME' section in CHANGELOG.md;" \
-                 "falling back to generated notes."
-          fi
-
-      - name: Create the GitHub release
-        run: |
-          if [ "${{ steps.notes.outputs.found }}" = "true" ]; then
-            gh release create "$GITHUB_REF_NAME" \
-              --title "$GITHUB_REF_NAME" \
-              --notes-file release-notes.md \
-              --verify-tag
-          else
-            gh release create "$GITHUB_REF_NAME" \
-              --title "$GITHUB_REF_NAME" \
-              --generate-notes \
-              --verify-tag
-          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --draft \
+            --generate-notes \
+            --verify-tag
+          echo "::notice::Draft release $GITHUB_REF_NAME created. Write the" \
+               "notes and publish it from the Releases page."
         env:
           GH_TOKEN: ${{ github.token }}
