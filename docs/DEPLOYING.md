@@ -72,8 +72,10 @@ You do not have to do this before setting up login. Access can protect the
 `workers.dev` URL on its own, so you can get sign-in working and test it end to
 end before moving any DNS.
 
-> **Moving off Vercel?** Add the custom domain on Cloudflare _after_ removing
-> it from the Vercel project, or the DNS record will conflict.
+Cloudflare is the only place HostStats is deployed. That matters more than it
+sounds: `public/_headers` is a Cloudflare-format file, so the CSP and the other
+security headers below exist only on a Cloudflare deployment. A second host
+would serve the same app without them.
 
 ### What's in the box
 
