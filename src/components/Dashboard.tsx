@@ -23,6 +23,8 @@ import ProfitChart from "./ProfitChart";
 import CostsForm from "./CostsForm";
 import GapNights from "./GapNights";
 import TaxSummary from "./TaxSummary";
+import Pace from "./Pace";
+import { calcLeadTimes, calcPace } from "@/lib/pace";
 import { calcTaxYears, taxStayRows } from "@/lib/tax";
 import {
   AlertCircleIcon,
@@ -43,6 +45,8 @@ interface Props {
   onAddMore: () => void;
   disableAddMore?: boolean;
   isDemo?: boolean;
+  /** "Today" for the forward-looking section. The demo pins it inside the sample. */
+  asOf?: Date;
 }
 
 const buttonClass =
@@ -131,6 +135,7 @@ export default function Dashboard({
   onAddMore,
   disableAddMore,
   isDemo,
+  asOf,
 }: Props) {
   const { reservations, payouts } = data;
 
@@ -156,6 +161,10 @@ export default function Dashboard({
     () => calcBreakEven(reservations, payouts, costs),
     [reservations, payouts, costs]
   );
+
+  const paceAsOf = useMemo(() => asOf ?? new Date(), [asOf]);
+  const pace = useMemo(() => calcPace(reservations, paceAsOf), [reservations, paceAsOf]);
+  const leadTimes = useMemo(() => calcLeadTimes(reservations), [reservations]);
 
   const taxYears = useMemo(
     () => calcTaxYears(reservations, payouts, costs),
@@ -274,6 +283,16 @@ export default function Dashboard({
               sub="Short empty stretches stuck between two stays"
             />
             <GapNights report={gapReport} nightValue={nightValue} />
+          </section>
+        )}
+
+        {reservations.length > 0 && (
+          <section className="mb-s7">
+            <SectionHeading
+              title="Pace"
+              sub="How the coming months are filling, and when guests book"
+            />
+            <Pace pace={pace} lead={leadTimes} asOf={paceAsOf} isDemo={isDemo} />
           </section>
         )}
 

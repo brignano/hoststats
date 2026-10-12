@@ -8,6 +8,8 @@ export interface Reservation {
   listingName?: string;
   /** Total payout amount if included in the reservations export */
   payoutAmount?: number;
+  /** When the guest booked. Airbnb's reservations export calls this "Booked". */
+  bookedAt?: Date;
 }
 
 export interface Payout {
@@ -132,4 +134,33 @@ export interface TaxStayRow {
   /** Nights of this stay inside the year — a New Year stay is split. */
   nightsInYear: number;
   payoutAmount?: number;
+}
+
+export interface PaceMonth {
+  month: string; // "YYYY-MM"
+  label: string; // "Jun 2025"
+  daysInMonth: number;
+  /** Nights booked for this month as of the reference date. */
+  nightsNow: number;
+  /** Nights booked for the same month a year earlier, as of the same day a year earlier. */
+  lastYearSamePoint: number | null;
+  /** Where that month ended up last year. */
+  lastYearFinal: number | null;
+}
+
+export interface LeadTimeMonth {
+  month: number; // 0 = Jan
+  label: string; // "Jan"
+  /** Median days between booking and check-in; null with no stays. */
+  medianDays: number | null;
+  stays: number;
+}
+
+export interface LeadTimes {
+  /** Stays with a known booking date. */
+  stays: number;
+  medianDays: number;
+  /** Share of stays booked 7 days or less before check-in, 0–1. */
+  lastMinuteShare: number;
+  byMonth: LeadTimeMonth[];
 }

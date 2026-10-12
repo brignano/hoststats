@@ -103,3 +103,101 @@ Date,Type,Amount,Description,Confirmation Code
 2025-01-03,Payout,1245.00,Reservation payout,HMST8S9T0U
 2025-01-03,Payout,125.00,Cleaning fee,HMST8S9T0U
 2025-01-03,Payout,100.00,Extra guest fee,HMST8S9T0U
+2025-01-12,Payout,255.00,Reservation payout,HM47C45D0B
+2025-01-12,Payout,75.00,Cleaning fee,HM47C45D0B
+2025-01-20,Payout,414.00,Reservation payout,HMC7DE2266
+2025-01-20,Payout,85.00,Cleaning fee,HMC7DE2266
+2025-01-26,Refund,-120.00,Guest cancellation refund,HMCBC0FD65
+2025-02-02,Payout,268.00,Reservation payout,HMAEEE1B19
+2025-02-02,Payout,75.00,Cleaning fee,HMAEEE1B19
+2025-02-16,Payout,636.00,Reservation payout,HMB41E0A05
+2025-02-16,Payout,95.00,Cleaning fee,HMB41E0A05
+2025-02-16,Payout,50.00,Extra guest fee,HMB41E0A05
+2025-02-23,Payout,279.00,Reservation payout,HMDF169427
+2025-02-23,Payout,75.00,Cleaning fee,HMDF169427
+2025-03-10,Payout,442.00,Reservation payout,HM1BF4C152
+2025-03-10,Payout,85.00,Cleaning fee,HM1BF4C152
+2025-03-15,Payout,463.00,Reservation payout,HMF6C7F4F9
+2025-03-15,Payout,85.00,Cleaning fee,HMF6C7F4F9
+2025-03-28,Payout,1133.00,Reservation payout,HMFCE27987
+2025-03-28,Payout,125.00,Cleaning fee,HMFCE27987
+2025-04-05,Refund,-95.00,Guest cancellation refund,HMA98BDF2F
+2025-04-14,Payout,497.00,Reservation payout,HM93C557F9
+2025-04-14,Payout,85.00,Cleaning fee,HM93C557F9
+2025-04-18,Payout,518.00,Reservation payout,HM4D657D7B
+2025-04-18,Payout,85.00,Cleaning fee,HM4D657D7B
+2025-04-27,Payout,331.00,Reservation payout,HMA0FA5E0D
+2025-04-27,Payout,75.00,Cleaning fee,HMA0FA5E0D
+2025-05-05,Payout,546.00,Reservation payout,HMB62F0E4E
+2025-05-05,Payout,95.00,Cleaning fee,HMB62F0E4E
+2025-05-12,Payout,567.00,Reservation payout,HMB9B81E78
+2025-05-12,Payout,95.00,Cleaning fee,HMB9B81E78
+2025-05-26,Payout,605.00,Reservation payout,HMEA2A1DBE
+2025-05-26,Payout,95.00,Cleaning fee,HMEA2A1DBE
+2025-06-02,Payout,622.00,Reservation payout,HMC48BE4B3
+2025-06-02,Payout,95.00,Cleaning fee,HMC48BE4B3
+2025-06-13,Payout,1514.00,Reservation payout,HM94790883
+2025-06-13,Payout,135.00,Cleaning fee,HM94790883
+2025-06-13,Payout,75.00,Extra guest fee,HM94790883
+2025-06-16,Payout,640.00,Reservation payout,HMFD21318C
+2025-06-16,Payout,95.00,Cleaning fee,HMFD21318C
+2025-06-27,Payout,1558.00,Reservation payout,HM0584CD80
+2025-06-27,Payout,135.00,Cleaning fee,HM0584CD80
+2025-06-27,Payout,100.00,Extra guest fee,HM0584CD80
+2025-07-04,Payout,1653.00,Reservation payout,HMA7BD95D0
+2025-07-04,Payout,135.00,Cleaning fee,HMA7BD95D0
+2025-07-04,Payout,125.00,Extra guest fee,HMA7BD95D0
+2025-07-11,Payout,1711.00,Reservation payout,HM7BC45441
+2025-07-11,Payout,135.00,Cleaning fee,HM7BC45441
+2025-07-11,Payout,125.00,Extra guest fee,HM7BC45441
+2025-07-18,Payout,1766.00,Reservation payout,HM6A84B89C
+2025-07-18,Payout,135.00,Cleaning fee,HM6A84B89C
+2025-07-18,Payout,125.00,Extra guest fee,HM6A84B89C
+2025-07-25,Payout,1794.00,Reservation payout,HM68E91382
+2025-07-25,Payout,135.00,Cleaning fee,HM68E91382
+2025-07-25,Payout,125.00,Extra guest fee,HM68E91382
+2025-08-01,Payout,1826.00,Reservation payout,HM8FE79225
+2025-08-01,Payout,135.00,Cleaning fee,HM8FE79225
+2025-08-01,Payout,125.00,Extra guest fee,HM8FE79225
+2025-08-08,Payout,1870.00,Reservation payout,HMCD6290D5
+2025-08-08,Payout,135.00,Cleaning fee,HMCD6290D5
+2025-08-08,Payout,125.00,Extra guest fee,HMCD6290D5
+2025-08-11,Resolution,-150.00,Guest damage claim,HMCD6290D5
+2025-08-15,Payout,1898.00,Reservation payout,HM74554A0A
+2025-08-15,Payout,135.00,Cleaning fee,HM74554A0A
+2025-08-15,Payout,125.00,Extra guest fee,HM74554A0A
+2025-08-22,Payout,1870.00,Reservation payout,HM35045617
+2025-08-22,Payout,135.00,Cleaning fee,HM35045617
+2025-08-22,Payout,125.00,Extra guest fee,HM35045617
+2025-08-25,Payout,650.00,Reservation payout,HM6433EEC3
+2025-08-25,Payout,95.00,Cleaning fee,HM6433EEC3
+2025-08-30,Payout,567.00,Reservation payout,HM847BE4BC
+2025-08-30,Payout,95.00,Cleaning fee,HM847BE4BC
+2025-09-08,Payout,515.00,Reservation payout,HM3380BF48
+2025-09-08,Payout,95.00,Cleaning fee,HM3380BF48
+2025-09-13,Refund,-145.00,Guest cancellation refund,HM59AE26FC
+2025-09-22,Payout,487.00,Reservation payout,HMC9C5A110
+2025-09-22,Payout,85.00,Cleaning fee,HMC9C5A110
+2025-09-29,Payout,463.00,Reservation payout,HM7DDA1610
+2025-09-29,Payout,85.00,Cleaning fee,HM7DDA1610
+2025-10-06,Payout,428.00,Reservation payout,HMF05A9B72
+2025-10-06,Payout,85.00,Cleaning fee,HMF05A9B72
+2025-10-11,Payout,411.00,Reservation payout,HM9E98A7FC
+2025-10-11,Payout,85.00,Cleaning fee,HM9E98A7FC
+2025-10-18,Refund,-115.00,Guest cancellation refund,HM72EA2D1B
+2025-10-27,Payout,400.00,Reservation payout,HM126E63C7
+2025-10-27,Payout,85.00,Cleaning fee,HM126E63C7
+2025-11-03,Payout,359.00,Reservation payout,HMC53305D1
+2025-11-03,Payout,85.00,Cleaning fee,HMC53305D1
+2025-11-07,Payout,338.00,Reservation payout,HM0BE23D2F
+2025-11-07,Payout,85.00,Cleaning fee,HM0BE23D2F
+2025-12-01,Payout,380.00,Reservation payout,HM86652FB6
+2025-12-01,Payout,85.00,Cleaning fee,HM86652FB6
+2025-12-08,Payout,362.00,Reservation payout,HM226531AB
+2025-12-08,Payout,85.00,Cleaning fee,HM226531AB
+2025-12-26,Payout,1170.00,Reservation payout,HM7D7D0AD2
+2025-12-26,Payout,125.00,Cleaning fee,HM7D7D0AD2
+2025-12-26,Payout,100.00,Extra guest fee,HM7D7D0AD2
+2026-01-02,Payout,1295.00,Reservation payout,HM99510FAA
+2026-01-02,Payout,125.00,Cleaning fee,HM99510FAA
+2026-01-02,Payout,100.00,Extra guest fee,HM99510FAA

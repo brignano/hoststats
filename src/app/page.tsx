@@ -29,6 +29,9 @@ const NO_COSTS: Costs = { monthlyFixed: 0, perStay: 0 };
 /** Plausible costs for the example beach house, so the demo shows profit straight away. */
 const SAMPLE_COSTS: Costs = { monthlyFixed: 2200, perStay: 120 };
 
+/** The example data runs 2024–2025; pacing needs a "today" with a future after it. */
+const SAMPLE_AS_OF = new Date(2025, 5, 1);
+
 const SAMPLE_FILES = ["/samples/sample-reservations.csv", "/samples/sample-earnings.csv"];
 
 export default function Home() {
@@ -158,6 +161,7 @@ export default function Home() {
         onReset={handleReset}
         onAddMore={handleAddMore}
         isDemo={isDemo}
+        asOf={isDemo ? SAMPLE_AS_OF : undefined}
       />
     );
   }

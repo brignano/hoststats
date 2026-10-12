@@ -18,6 +18,7 @@ A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard ca
 - 💰 Earnings by month (when earnings CSV is uploaded)
 - 📱 Mobile-friendly, large-print dashboard
 - 🔒 Privacy-first: all processing happens in your browser
+- 📈 Pace: nights on the books for the next three months against the same day last year, plus how far ahead guests book and when to have each month's prices set
 - 🧾 Tax season: yearly rents received and fair rental days (Schedule E lines 3 and 2), flags for the 14-day and 7-night thresholds, and a per-stay CSV for your accountant
 - 💾 Optionally remember your costs on this device (browser storage only, untick to delete)
 - 🔗 Paste a listing's Airbnb calendar link to see upcoming stays and the gap nights you can still sell (Airbnb has no public API or OAuth, so this is the no-CSV route)

@@ -52,7 +52,7 @@ describe("parseReservationsCSV", () => {
 
   it("parses all rows", () => {
     const rows = parseReservationsCSV(csv);
-    expect(rows).toHaveLength(46);
+    expect(rows).toHaveLength(90);
   });
 
   it("parses check-in dates correctly", () => {
@@ -103,7 +103,7 @@ describe("parseEarningsCSV", () => {
 
   it("parses all rows", () => {
     const rows = parseEarningsCSV(csv);
-    expect(rows).toHaveLength(104);
+    expect(rows).toHaveLength(202);
   });
 
   it("parses positive amounts", () => {
