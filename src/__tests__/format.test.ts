@@ -3,6 +3,7 @@ import {
   formatMoneyExact,
   formatMoneyAxis,
   formatCount,
+  formatNightRange,
 } from "@/lib/format";
 
 describe("formatMoney", () => {
@@ -35,5 +36,19 @@ describe("formatCount", () => {
   it("groups thousands", () => {
     expect(formatCount(175)).toBe("175");
     expect(formatCount(12345)).toBe("12,345");
+  });
+});
+
+describe("formatNightRange", () => {
+  it("shows a single night as one date", () => {
+    expect(formatNightRange(new Date(2024, 3, 15), 1)).toBe("Apr 15, 2024");
+  });
+
+  it("shows the first and last empty night", () => {
+    expect(formatNightRange(new Date(2024, 2, 11), 2)).toBe("Mar 11 – Mar 12, 2024");
+  });
+
+  it("repeats the year when the gap crosses it", () => {
+    expect(formatNightRange(new Date(2024, 11, 31), 2)).toBe("Dec 31, 2024 – Jan 1, 2025");
   });
 });

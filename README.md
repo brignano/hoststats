@@ -2,7 +2,7 @@
 
 > **Not affiliated with Airbnb.** HostStats is an independent open-source tool.
 
-A simple, privacy-first dashboard for Airbnb hosts to understand their listing performance. Upload your Airbnb CSV exports and instantly see occupancy rates, booking trends, and earnings — all processed locally in your browser with no data sent to any server.
+A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard can't: what the listing actually earns after costs, how many nights a month it takes to break even, and how much money short gaps between stays are costing. Upload your Airbnb CSV exports — everything is processed locally in your browser with no data sent to any server.
 
 **Live:** [https://hoststats.brignano.io](https://hoststats.brignano.io)
 
@@ -10,7 +10,10 @@ A simple, privacy-first dashboard for Airbnb hosts to understand their listing p
 
 ## ✨ Features
 
-- 📊 Occupancy % by month
+- 💵 Profit after your costs, month by month — enter what the place costs to run (monthly and per stay)
+- ⚖️ Break-even: booked nights a month needed to cover costs, against what you actually average
+- 🕳️ Gap nights: 1–2 night holes stranded between stays, what they cost you, and upcoming ones you can still sell
+- 📊 Occupancy % by month (empty months count toward the average)
 - 📅 Booked nights by day of week
 - 💰 Earnings by month (when earnings CSV is uploaded)
 - 📱 Mobile-friendly, large-print dashboard

@@ -76,6 +76,11 @@
     border-color: var(--danger-line);
   }
 
+  .state-success {
+    background: var(--success-surface);
+    border-color: var(--success-line);
+  }
+
   .state-info {
     background: var(--info-surface);
     border-color: var(--info-line);
@@ -96,6 +101,10 @@
 
   .state-danger .state-icon {
     color: var(--danger-ink);
+  }
+
+  .state-success .state-icon {
+    color: var(--success-ink);
   }
 
   .state-info .state-icon {
