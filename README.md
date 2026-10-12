@@ -2,7 +2,7 @@
 
 > **Not affiliated with Airbnb.** HostStats is an independent open-source tool.
 
-A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard can't: what the listing actually earns after costs, how many nights a month it takes to break even, and how much money short gaps between stays are costing. Upload your Airbnb CSV exports — everything is processed locally in your browser with no data sent to any server.
+A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard can't: what the listing actually earns after costs, how many nights a month it takes to break even, and how much money short gaps between stays are costing. Upload your Airbnb CSV exports — they are processed locally in your browser and never sent to any server. Pasting a calendar link is the one optional exception: it is fetched through a small pass-through proxy that stores and logs nothing.
 
 **Live:** [https://hoststats.brignano.io](https://hoststats.brignano.io)
 
@@ -18,6 +18,7 @@ A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard ca
 - 💰 Earnings by month (when earnings CSV is uploaded)
 - 📱 Mobile-friendly, large-print dashboard
 - 🔒 Privacy-first: all processing happens in your browser
+- 🔗 Paste a listing's Airbnb calendar link to see upcoming stays and the gap nights you can still sell (Airbnb has no public API or OAuth, so this is the no-CSV route)
 - 📁 Upload multiple files at once
 - 👀 Try it with example data before hunting down your exports
 - 📲 Installable on a phone home screen

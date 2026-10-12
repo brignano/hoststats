@@ -4,7 +4,8 @@ const UNRECOGNIZED =
   `We could not recognize this CSV file.\n\n` +
   `Expected one of:\n` +
   `• Reservations CSV — needs columns like "Confirmation Code", "Check-in", "Check-out"\n` +
-  `• Earnings CSV — needs columns like "Date", "Amount"\n\n` +
+  `• Earnings CSV — needs columns like "Date", "Amount"\n` +
+  `• Airbnb calendar (.ics)\n\n` +
   `Tip: Go to airbnb.com/hosting → Reservations or Earnings → Export CSV.`;
 
 /**
@@ -15,6 +16,12 @@ const UNRECOGNIZED =
  */
 export async function parseFile(file: File): Promise<ParsedData> {
   const text = await file.text();
+
+  // A downloaded Airbnb calendar (.ics) works the same as a pasted link.
+  const ical = await import("./ical");
+  if (ical.isICal(text)) {
+    return { payouts: [], ...ical.parseICal(text) };
+  }
 
   const firstLine = text.split("\n")[0] ?? "";
   const headers = firstLine

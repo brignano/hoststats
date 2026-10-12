@@ -18,15 +18,16 @@ export default function PrivacyPolicy() {
       <article className="max-w-measure mx-auto bg-card rounded-lg border border-line shadow-1 p-s6 sm:p-s7">
         <h1 className="text-3xl font-semibold tracking-tight text-ink mb-s2">Privacy Policy</h1>
         <p className="text-sm text-slate mb-s6">
-          For <strong>HostStats</strong>. Last updated 23 August 2026.
+          For <strong>HostStats</strong>. Last updated 12 October 2026.
         </p>
 
         <div className="space-y-s5 text-ink-soft leading-relaxed">
           <section>
             <h2 className="text-lg font-medium text-ink mb-s2">The short version</h2>
             <p>
-              HostStats does not collect, transmit, store, or share any of your data. Your
-              spreadsheets are read by your own browser and never leave your device.
+              HostStats does not collect, store, or share any of your data. Your spreadsheets are
+              read by your own browser and never leave your device. The one exception is an Airbnb
+              calendar link, if you choose to paste one — see below.
             </p>
           </section>
 
@@ -36,13 +37,34 @@ export default function PrivacyPolicy() {
             </h2>
             <p>
               When you drop a CSV onto HostStats, your browser reads it locally and calculates your
-              statistics on your own machine. The file is never sent to a server, because there is
-              no server to send it to — HostStats is a static website with no backend and no
-              database.
+              statistics on your own machine. The file is never sent to a server — HostStats has no
+              database, and its only server code is the calendar fetch described below.
             </p>
             <p className="mt-s3">
               Nothing is written to disk. Close or refresh the tab and the data is gone. There is no
               &ldquo;delete my data&rdquo; process because nothing was ever kept.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-medium text-ink mb-s2">Airbnb calendar links</h2>
+            <p>
+              If you paste a listing&rsquo;s calendar link, your browser sends that link to
+              HostStats&rsquo;s own server, which downloads the calendar from Airbnb and passes it
+              straight back to you. This step exists only because Airbnb does not let a web page
+              read the calendar directly.
+            </p>
+            <p className="mt-s3">
+              The link and the calendar are not stored, cached, or logged. The link travels in the
+              body of the request rather than its address, so it does not appear in request logs,
+              and the server only ever fetches Airbnb calendar addresses. Airbnb&rsquo;s calendar
+              holds booked and blocked dates and a booking reference — no prices, and no guest
+              names. It is read in your browser like the spreadsheets and is gone when you close the
+              tab.
+            </p>
+            <p className="mt-s3">
+              Anyone with the link can see your booked dates, so treat it like a password. You can
+              reset it in Airbnb from the same screen you copied it from.
             </p>
           </section>
 
@@ -73,9 +95,9 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-lg font-medium text-ink mb-s2">Hosting</h2>
             <p>
-              The site is served as static files by Cloudflare. As with any web host, Cloudflare
-              processes standard request data such as IP addresses in order to deliver the page and
-              protect against abuse. This is handled under{" "}
+              The site is served by Cloudflare, as static files plus the calendar fetch above. As
+              with any web host, Cloudflare processes standard request data such as IP addresses in
+              order to deliver the page and protect against abuse. This is handled under{" "}
               <a
                 href="https://www.cloudflare.com/privacypolicy/"
                 target="_blank"

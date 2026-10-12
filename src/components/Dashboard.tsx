@@ -139,8 +139,8 @@ export default function Dashboard({
 
   const nightValue = useMemo(() => incomePerNight(reservations, payouts), [reservations, payouts]);
   const gapReport = useMemo(
-    () => calcGapNights(reservations, nightValue),
-    [reservations, nightValue]
+    () => calcGapNights(reservations, nightValue, new Date(), data.blocked),
+    [reservations, nightValue, data.blocked]
   );
   const monthlyProfit = useMemo(
     () => calcMonthlyProfit(reservations, payouts, costs),
