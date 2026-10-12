@@ -11,8 +11,6 @@ interface Props {
   pace: PaceMonth[];
   lead: LeadTimes | null;
   asOf: Date;
-  /** Example data: "today" is a fixed date inside the sample. */
-  isDemo?: boolean;
 }
 
 const nights = (n: number) => `${formatCount(n)} night${n === 1 ? "" : "s"}`;
@@ -144,22 +142,11 @@ function PaceVerdict({ pace }: { pace: PaceMonth[] }) {
  * how far ahead do guests book? Airbnb's dashboards look backwards; this is
  * what decides when to change prices.
  */
-export default function Pace({ pace, lead, asOf, isDemo }: Props) {
+export default function Pace({ pace, lead, asOf }: Props) {
   const deadline = lead ? pricingDeadline(lead, asOf) : null;
-  const asOfLabel = asOf.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 
   return (
     <div className="space-y-s4">
-      {isDemo && (
-        <p className="text-xs text-slate">
-          The example data pretends today is {asOfLabel}, so there&rsquo;s a future to look at.
-        </p>
-      )}
-
       {pace.some((m) => m.nightsNow > 0 || m.lastYearFinal) && (
         <>
           <PaceVerdict pace={pace} />
