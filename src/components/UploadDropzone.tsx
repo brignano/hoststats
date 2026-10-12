@@ -20,7 +20,11 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "text/csv": [".csv"], "application/vnd.ms-excel": [".csv"] },
+    accept: {
+      "text/csv": [".csv"],
+      "application/vnd.ms-excel": [".csv"],
+      "text/calendar": [".ics"],
+    },
     multiple: true,
     disabled: loading,
   });

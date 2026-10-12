@@ -9,6 +9,7 @@ import {
   BreakEven,
   GapReport,
   GapStretch,
+  BlockedSpan,
 } from "./models";
 import { dayKey, monthKey } from "./dates";
 
@@ -286,28 +287,41 @@ export function calcBreakEven(
 export function calcGapNights(
   reservations: Reservation[],
   nightValue: number,
-  today: Date = new Date()
+  today: Date = new Date(),
+  blocked: BlockedSpan[] = []
 ): GapReport {
   const active = reservations.filter(isActive).filter((r) => r.nights > 0);
   const shortestStay = active.length > 0 ? Math.min(...active.map((r) => r.nights)) : 0;
   const maxGapNights = Math.max(2, shortestStay - 1);
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-  // Each listing has its own calendar.
-  const byListing = new Map<string, Reservation[]>();
-  for (const r of active) {
-    const key = r.listingName ?? "";
-    if (!byListing.has(key)) byListing.set(key, []);
-    byListing.get(key)!.push(r);
+  // Blocked dates (from a calendar feed) close the calendar too, so a hole
+  // between a stay and a block is just as stranded. A hole between two blocks
+  // is the host's own doing, so at least one side has to be a stay.
+  interface Span {
+    start: Date;
+    end: Date;
+    stay: boolean;
   }
 
+  // Each listing has its own calendar.
+  const byListing = new Map<string, Span[]>();
+  const add = (listing: string | undefined, span: Span) => {
+    const key = listing ?? "";
+    if (!byListing.has(key)) byListing.set(key, []);
+    byListing.get(key)!.push(span);
+  };
+  for (const r of active) add(r.listingName, { start: r.checkIn, end: r.checkOut, stay: true });
+  for (const b of blocked) add(b.listingName, { start: b.start, end: b.end, stay: false });
+
   const gaps: GapStretch[] = [];
-  for (const [listing, stays] of byListing) {
-    stays.sort((a, b) => a.checkIn.getTime() - b.checkIn.getTime());
-    let lastOut = stays[0].checkOut;
-    for (const stay of stays.slice(1)) {
-      const gap = daysBetween(lastOut, stay.checkIn);
-      if (gap >= 1 && gap <= maxGapNights) {
+  for (const [listing, spans] of byListing) {
+    spans.sort((a, b) => a.start.getTime() - b.start.getTime());
+    let lastOut = spans[0].end;
+    let lastWasStay = spans[0].stay;
+    for (const span of spans.slice(1)) {
+      const gap = daysBetween(lastOut, span.start);
+      if (gap >= 1 && gap <= maxGapNights && (lastWasStay || span.stay)) {
         gaps.push({
           listingName: listing || undefined,
           start: new Date(lastOut),
@@ -315,7 +329,12 @@ export function calcGapNights(
           upcoming: lastOut >= startOfToday,
         });
       }
-      if (stay.checkOut > lastOut) lastOut = stay.checkOut;
+      if (span.end > lastOut) {
+        lastOut = span.end;
+        lastWasStay = span.stay;
+      } else if (span.end.getTime() === lastOut.getTime()) {
+        lastWasStay = lastWasStay || span.stay;
+      }
     }
   }
   gaps.sort((a, b) => a.start.getTime() - b.start.getTime());

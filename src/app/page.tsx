@@ -3,9 +3,12 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import UploadDropzone from "@/components/UploadDropzone";
+import CalendarLinkForm from "@/components/CalendarLinkForm";
 import { AlertCircleIcon } from "@/components/icons";
 import { Costs, ParsedData } from "@/lib/models";
 import { parseFile } from "@/lib/importers";
+import { mergeParsed } from "@/lib/merge";
+import { loadAirbnbCalendar } from "@/lib/calendarFetch";
 
 // The dashboard pulls in Recharts (~470 KB). Nobody sees a chart until they
 // have uploaded something, so keep it out of the first paint entirely.
@@ -30,33 +33,46 @@ const SAMPLE_FILES = ["/samples/sample-reservations.csv", "/samples/sample-earni
 export default function Home() {
   const [data, setData] = useState<ParsedData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [calendarError, setCalendarError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [addingMore, setAddingMore] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   // Lives here, not in the dashboard, so "Add more files" doesn't wipe it.
   const [costs, setCosts] = useState<Costs>(NO_COSTS);
 
+  /** Add newly parsed data to what's loaded (or replace it, on a fresh start). */
+  function commit(parsed: ParsedData[], demo: boolean) {
+    let combined: ParsedData =
+      addingMore && data ? data : { reservations: [], payouts: [], blocked: [] };
+    for (const p of parsed) combined = mergeParsed(combined, p);
+    setData(combined);
+    setIsDemo(demo);
+    if (demo) setCosts(SAMPLE_COSTS);
+    setAddingMore(false);
+  }
+
   async function ingest(files: File[], demo = false) {
     setLoading(true);
     setError(null);
     try {
-      let combined: ParsedData =
-        addingMore && data
-          ? { reservations: [...data.reservations], payouts: [...data.payouts] }
-          : { reservations: [], payouts: [] };
-      for (const file of files) {
-        const result = await parseFile(file);
-        combined = {
-          reservations: [...combined.reservations, ...result.reservations],
-          payouts: [...combined.payouts, ...result.payouts],
-        };
-      }
-      setData(combined);
-      setIsDemo(demo);
-      if (demo) setCosts(SAMPLE_COSTS);
-      setAddingMore(false);
+      const parsed: ParsedData[] = [];
+      for (const file of files) parsed.push(await parseFile(file));
+      commit(parsed, demo);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCalendar(link: string, listingName: string) {
+    setLoading(true);
+    setError(null);
+    setCalendarError(null);
+    try {
+      commit([await loadAirbnbCalendar(link, listingName)], false);
+    } catch (err) {
+      setCalendarError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -92,20 +108,22 @@ export default function Home() {
     setAddingMore(false);
     setIsDemo(false);
     setCosts(NO_COSTS);
+    setCalendarError(null);
   }
 
   function handleAddMore() {
     setAddingMore(true);
     setError(null);
+    setCalendarError(null);
   }
 
   function handleCancelAddMore() {
     setAddingMore(false);
     setError(null);
+    setCalendarError(null);
   }
 
   if (data && !addingMore) {
-    const hasBothFiles = data.reservations.length > 0 && data.payouts.length > 0;
     return (
       <Dashboard
         data={data}
@@ -113,7 +131,6 @@ export default function Home() {
         onCostsChange={setCosts}
         onReset={handleReset}
         onAddMore={handleAddMore}
-        disableAddMore={hasBothFiles}
         isDemo={isDemo}
       />
     );
@@ -127,7 +144,7 @@ export default function Home() {
           <p className="text-lg text-ink-soft">See what your Airbnb really earns — no account needed.</p>
           <p className="text-sm text-slate mt-s2">
             Upload your Airbnb exports to see profit after costs, the occupancy you need to break
-            even, and the gap nights you&rsquo;re losing. Everything stays on your device.
+            even, and the gap nights you&rsquo;re losing. Your files stay on your device.
           </p>
         </div>
 
@@ -147,6 +164,10 @@ export default function Home() {
           loading={loading}
           onCancel={addingMore ? handleCancelAddMore : undefined}
         />
+
+        <div className="mt-s4">
+          <CalendarLinkForm onSubmit={handleCalendar} loading={loading} error={calendarError} />
+        </div>
 
         {!addingMore && (
           <div className="mt-s3 text-center">

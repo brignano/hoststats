@@ -18,9 +18,19 @@ export interface Payout {
   confirmationCode?: string;
 }
 
+/** Dates the host or Airbnb closed off — not a stay, but not sellable either. */
+export interface BlockedSpan {
+  start: Date;
+  /** Exclusive, like a check-out date. */
+  end: Date;
+  listingName?: string;
+}
+
 export interface ParsedData {
   reservations: Reservation[];
   payouts: Payout[];
+  /** Only calendar feeds carry these; CSV exports don't. */
+  blocked?: BlockedSpan[];
 }
 
 export interface MonthlyOccupancy {

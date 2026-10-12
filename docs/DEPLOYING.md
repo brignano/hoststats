@@ -1,8 +1,11 @@
 # Deploying HostStats on Cloudflare
 
 HostStats is a static site — every CSV is parsed in the visitor's browser and
-nothing is uploaded. That means it deploys as plain files on Cloudflare Workers
-static assets, with no server, no database and no runtime cost.
+nothing is uploaded. It deploys as plain files on Cloudflare Workers static
+assets, with no database. The one piece of server code is `worker/`, which
+answers `/api/calendar`: it fetches a host's Airbnb calendar feed, because
+Airbnb sends no CORS headers and a browser can't read it directly. Every other
+path is served straight from the static files without running the Worker.
 
 Two separate things are set up here:
 
@@ -79,11 +82,19 @@ would serve the same app without them.
 
 ### What's in the box
 
-| File              | Why                                                                          |
-| ----------------- | ---------------------------------------------------------------------------- |
-| `wrangler.jsonc`  | Points Workers static assets at `./out`, serves `404.html` for unknown paths |
-| `next.config.mjs` | `output: "export"` — no server runtime                                       |
-| `public/_headers` | Immutable caching for hashed assets, plus CSP and other security headers     |
+| File              | Why                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `wrangler.jsonc`  | Points Workers static assets at `./out`, serves `404.html` for unknown paths, and runs the Worker first only for `/api/*` |
+| `worker/`         | The `/api/calendar` proxy: Airbnb calendar links only, POST only, nothing stored or logged                                |
+| `next.config.mjs` | `output: "export"` — no Next.js server runtime                                                                            |
+| `public/_headers` | Immutable caching for hashed assets, plus CSP and other security headers                                                  |
+
+`_headers` applies to the static files only. The Worker sets its own headers
+(`Cache-Control: no-store` and friends) on `/api/calendar` responses.
+
+`/api/calendar` only exists on Cloudflare. `npm run dev` has no Worker, so
+calendar links fail there with a message saying so; use `npm run preview` to
+try them locally.
 
 `_headers` gives `/_next/static/*` a one-year immutable cache. Those filenames
 contain a content hash, so a new build produces new names and returning
