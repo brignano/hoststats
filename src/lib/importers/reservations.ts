@@ -28,7 +28,8 @@ const COLUMN_MAP: Record<string, string[]> = {
     "end_date",
     "departure",
   ],
-  nights: ["nights", "# nights", "number of nights", "nights booked"],
+  nights: ["nights", "# nights", "# of nights", "number of nights", "nights booked"],
+  bookedAt: ["booked", "booked date", "booking date", "date booked", "booked on"],
   guestName: [
     "guest",
     "guest name",
@@ -106,6 +107,7 @@ export function parseReservationsCSV(csvText: string): Reservation[] {
   const guestCol = findColumn(headers, "guestName");
   const listingCol = findColumn(headers, "listingName");
   const payoutCol = findColumn(headers, "payoutAmount");
+  const bookedCol = findColumn(headers, "bookedAt");
 
   const reservations: Reservation[] = [];
 
@@ -117,6 +119,16 @@ export function parseReservationsCSV(csvText: string): Reservation[] {
       rawNights && !isNaN(Number(rawNights))
         ? Number(rawNights)
         : nightsBetween(checkIn, checkOut);
+
+    // Optional, so a blank or odd booked date never fails the whole import.
+    let bookedAt: Date | undefined;
+    if (bookedCol && row[bookedCol]?.trim()) {
+      try {
+        bookedAt = parseDate(row[bookedCol]);
+      } catch {
+        bookedAt = undefined;
+      }
+    }
 
     reservations.push({
       id: row[idCol]?.trim() ?? "",
@@ -130,6 +142,7 @@ export function parseReservationsCSV(csvText: string): Reservation[] {
         payoutCol && row[payoutCol]
           ? parseFloat(row[payoutCol].replace(/[^0-9.\-]/g, ""))
           : undefined,
+      bookedAt,
     });
   }
 
