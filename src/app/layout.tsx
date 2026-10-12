@@ -22,6 +22,14 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hoststats.brignano
 const TITLE = "HostStats – Your Airbnb at a Glance";
 const DESCRIPTION =
   "Upload your Airbnb CSV exports and instantly see how your hosting is going. Everything is processed in your browser — nothing is uploaded.";
+// The link-preview card (iMessage, Slack, etc.). Without one, iMessage draws
+// an empty placeholder above the title. metadataBase makes the URL absolute.
+const SOCIAL_IMAGE = {
+  url: "/og.png",
+  width: 1200,
+  height: 630,
+  alt: "HostStats: see what your Airbnb really earns",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,11 +51,13 @@ export const metadata: Metadata = {
     siteName: "HostStats",
     title: TITLE,
     description: DESCRIPTION,
+    images: [SOCIAL_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
+    images: [SOCIAL_IMAGE],
   },
   robots: {
     // Private family tool sitting behind Cloudflare Access — keep it unindexed.
