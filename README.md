@@ -10,6 +10,7 @@ A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard ca
 
 ## ✨ Features
 
+- ✅ "What to do now": the gap nights to open up, the month falling behind last year, the pricing deadline coming up — at the top, each linking to the detail
 - 💵 Profit after your costs, month by month — enter what the place costs to run (monthly and per stay)
 - ⚖️ Break-even: booked nights a month needed to cover costs, against what you actually average
 - 🕳️ Gap nights: 1–2 night holes stranded between stays, what they cost you, and upcoming ones you can still sell

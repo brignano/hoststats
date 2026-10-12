@@ -24,6 +24,8 @@ import CostsForm from "./CostsForm";
 import GapNights from "./GapNights";
 import TaxSummary from "./TaxSummary";
 import Pace from "./Pace";
+import NextActions from "./NextActions";
+import { buildActions } from "@/lib/actions";
 import { calcLeadTimes, calcPace } from "@/lib/pace";
 import { calcTaxYears, taxStayRows } from "@/lib/tax";
 import {
@@ -148,10 +150,14 @@ export default function Dashboard({
   const revenue = totalRevenue(payouts);
   const hasRevenue = payouts.length > 0;
 
+  // "Today" for everything forward-looking. The demo pins it inside the
+  // sample so upcoming gaps and pace have a future to show.
+  const paceAsOf = useMemo(() => asOf ?? new Date(), [asOf]);
+
   const nightValue = useMemo(() => incomePerNight(reservations, payouts), [reservations, payouts]);
   const gapReport = useMemo(
-    () => calcGapNights(reservations, nightValue, new Date(), data.blocked),
-    [reservations, nightValue, data.blocked]
+    () => calcGapNights(reservations, nightValue, paceAsOf, data.blocked),
+    [reservations, nightValue, paceAsOf, data.blocked]
   );
   const monthlyProfit = useMemo(
     () => calcMonthlyProfit(reservations, payouts, costs),
@@ -162,7 +168,6 @@ export default function Dashboard({
     [reservations, payouts, costs]
   );
 
-  const paceAsOf = useMemo(() => asOf ?? new Date(), [asOf]);
   const pace = useMemo(() => calcPace(reservations, paceAsOf), [reservations, paceAsOf]);
   const leadTimes = useMemo(() => calcLeadTimes(reservations), [reservations]);
 
@@ -173,6 +178,34 @@ export default function Dashboard({
 
   const hasIncome = nightValue > 0;
   const hasCosts = costs.monthlyFixed > 0 || costs.perStay > 0;
+  const actions = useMemo(
+    () =>
+      buildActions({
+        asOf: paceAsOf,
+        gaps: gapReport,
+        pace,
+        lead: leadTimes,
+        breakEven,
+        hasIncome,
+        hasCosts,
+        hasReservations: reservations.length > 0,
+        nightValue,
+        taxYears,
+      }),
+    [
+      paceAsOf,
+      gapReport,
+      pace,
+      leadTimes,
+      breakEven,
+      hasIncome,
+      hasCosts,
+      reservations.length,
+      nightValue,
+      taxYears,
+    ]
+  );
+
   const netProfit = monthlyProfit.reduce((sum, m) => sum + m.profit, 0);
   const profitSpan =
     monthlyProfit.length > 0
@@ -207,13 +240,22 @@ export default function Dashboard({
             <AlertTriangleIcon className="state-icon" />
             <span>
               <strong className="font-semibold">This is example data</strong> — it is not your
-              listing. Press <em>Start over</em> to upload your own Airbnb export.
+              listing. It pretends today is{" "}
+              {paceAsOf.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+              so there&rsquo;s a future to look at. Press <em>Start over</em> to upload your own
+              Airbnb export.
             </span>
           </div>
         )}
 
+        <NextActions actions={actions} />
+
         {/* Profit — the part Airbnb can't show, because it doesn't know your costs */}
-        <section className="mb-s7">
+        <section id="profit" className="mb-s7 scroll-mt-s5">
           <SectionHeading title="Profit" sub="Payouts minus what the place costs to run" />
           <div className="space-y-s4">
             <CostsForm
@@ -277,7 +319,7 @@ export default function Dashboard({
         </section>
 
         {reservations.length > 0 && (
-          <section className="mb-s7">
+          <section id="gaps" className="mb-s7 scroll-mt-s5">
             <SectionHeading
               title="Gap nights"
               sub="Short empty stretches stuck between two stays"
@@ -287,17 +329,17 @@ export default function Dashboard({
         )}
 
         {reservations.length > 0 && (
-          <section className="mb-s7">
+          <section id="pace" className="mb-s7 scroll-mt-s5">
             <SectionHeading
               title="Pace"
               sub="How the coming months are filling, and when guests book"
             />
-            <Pace pace={pace} lead={leadTimes} asOf={paceAsOf} isDemo={isDemo} />
+            <Pace pace={pace} lead={leadTimes} asOf={paceAsOf} />
           </section>
         )}
 
         {taxYears.length > 0 && (
-          <section className="mb-s7">
+          <section id="tax" className="mb-s7 scroll-mt-s5">
             <SectionHeading
               title="Tax season"
               sub="Year totals for a US return — checked against your Airbnb tax forms, not instead of them"

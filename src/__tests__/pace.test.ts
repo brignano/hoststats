@@ -111,10 +111,11 @@ describe("pricingDeadline", () => {
       stay("d", local(2024, 2, 9), local(2024, 2, 11), local(2024, 1, 30)), // 10 days
     ])!;
     // Next July 1 after Jan 15 2026 is 2026-07-01; minus 90 days = Apr 2.
-    expect(pricingDeadline(lead, local(2026, 1, 15))).toEqual({
+    expect(pricingDeadline(lead, local(2026, 1, 15))).toMatchObject({
       month: "July",
       medianDays: 90,
       setBy: "early April",
+      date: local(2026, 4, 2),
     });
   });
 

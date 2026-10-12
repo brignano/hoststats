@@ -128,7 +128,7 @@ export function calcLeadTimes(reservations: Reservation[]): LeadTimes | null {
 export function pricingDeadline(
   lead: LeadTimes,
   today: Date = new Date()
-): { month: string; medianDays: number; setBy: string } | null {
+): { month: string; medianDays: number; setBy: string; date: Date } | null {
   const candidates = lead.byMonth.filter((m) => m.medianDays !== null && m.stays >= 2);
   if (candidates.length === 0) return null;
   const top = candidates.reduce((a, b) => (b.medianDays! > a.medianDays! ? b : a));
@@ -145,6 +145,7 @@ export function pricingDeadline(
     month: MONTHS_LONG[top.month],
     medianDays: top.medianDays!,
     setBy: `${part} ${MONTHS_LONG[deadline.getMonth()]}`,
+    date: deadline,
   };
 }
 
