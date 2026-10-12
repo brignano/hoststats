@@ -80,6 +80,8 @@ npm run build      # Static export to ./out
 npm run lint       # Run ESLint
 npm run typecheck  # tsc --noEmit
 npm test           # Run Jest unit tests
+npm run test:e2e   # Browser + accessibility tests against ./out (build first;
+                   # needs `npx playwright install chromium` once)
 npm run format     # Format with Prettier
 npm run preview    # Build, then serve via Wrangler locally
 npm run deploy     # Build, then deploy to Cloudflare
