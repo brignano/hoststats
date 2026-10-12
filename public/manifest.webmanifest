@@ -1,7 +1,7 @@
 {
-  "name": "HostStats – Your Airbnb at a Glance",
+  "name": "HostStats – What Your Airbnb Really Earns",
   "short_name": "HostStats",
-  "description": "Upload your Airbnb CSV exports and instantly see how your hosting is going.",
+  "description": "Profit after costs, gap nights, pace and tax totals from your Airbnb exports.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",

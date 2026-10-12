@@ -19,9 +19,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hoststats.brignano.io";
-const TITLE = "HostStats – Your Airbnb at a Glance";
+const TITLE = "HostStats – What Your Airbnb Really Earns";
 const DESCRIPTION =
-  "Upload your Airbnb CSV exports and instantly see how your hosting is going. Everything is processed in your browser — nothing is uploaded.";
+  "Profit after your costs, the empty nights between stays, pace against last year and tax-time totals — from your Airbnb exports, read in your browser.";
 // The link-preview card (iMessage, Slack, etc.). Without one, iMessage draws
 // an empty placeholder above the title. metadataBase makes the URL absolute.
 const SOCIAL_IMAGE = {

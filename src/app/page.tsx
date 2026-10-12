@@ -4,6 +4,8 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import UploadDropzone from "@/components/UploadDropzone";
 import CalendarLinkForm from "@/components/CalendarLinkForm";
+import FeatureStrip from "@/components/FeatureStrip";
+import { SAMPLE_AS_OF, SAMPLE_COSTS } from "@/lib/sample";
 import { AlertCircleIcon } from "@/components/icons";
 import { Costs, ParsedData } from "@/lib/models";
 import { parseFile } from "@/lib/importers";
@@ -26,11 +28,6 @@ const Dashboard = dynamic(() => import("@/components/Dashboard"), {
 
 const NO_COSTS: Costs = { monthlyFixed: 0, perStay: 0 };
 
-/** Plausible costs for the example beach house, so the demo shows profit straight away. */
-const SAMPLE_COSTS: Costs = { monthlyFixed: 2200, perStay: 120 };
-
-/** The example data runs 2024–2025; pacing needs a "today" with a future after it. */
-const SAMPLE_AS_OF = new Date(2025, 5, 1);
 
 const SAMPLE_FILES = ["/samples/sample-reservations.csv", "/samples/sample-earnings.csv"];
 
@@ -170,14 +167,46 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-s4 py-s7">
       <div className="max-w-xl w-full">
-        <div className="text-center mb-s6">
-          <h1 className="text-3xl font-semibold tracking-tight mb-s2">HostStats</h1>
-          <p className="text-lg text-ink-soft">See what your Airbnb really earns — no account needed.</p>
-          <p className="text-sm text-muted mt-s2">
-            Upload your Airbnb exports to see profit after costs, the occupancy you need to break
-            even, and the gap nights you&rsquo;re losing. Your files stay on your device.
-          </p>
-        </div>
+        {addingMore ? (
+          <div className="text-center mb-s6">
+            <h1 className="text-2xl font-semibold tracking-tight">Add more files</h1>
+            <p className="text-sm text-muted mt-s1">
+              Another export or calendar is added to what&rsquo;s already loaded.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="text-center mb-s5">
+              <p className="text-sm font-medium text-muted mb-s2">HostStats</p>
+              <h1 className="text-3xl font-semibold tracking-tight text-ink">
+                What your Airbnb really earns, and where it&rsquo;s leaking money
+              </h1>
+              <p className="text-base text-ink-soft mt-s3">
+                Airbnb shows you payouts. HostStats shows profit after your costs, the empty
+                nights stuck between stays, and whether next month is filling as fast as last
+                year. No account, and nothing kept on a server.
+              </p>
+            </div>
+
+            <div className="text-center mb-s6">
+              <button
+                type="button"
+                onClick={handleDemo}
+                disabled={loading}
+                className="text-base font-medium px-s5 py-s3 rounded bg-interactive text-on-interactive transition-colors duration-fast ease-brand hover:bg-interactive-hover disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:cursor-not-allowed"
+              >
+                See it with example data
+              </button>
+              <p className="text-xs text-muted mt-s2">
+                Or use your own Airbnb exports below — they never leave this device.
+              </p>
+            </div>
+
+            <FeatureStrip />
+
+            <h2 className="text-lg font-semibold text-ink mt-s7 mb-s3">Use your own data</h2>
+          </>
+        )}
 
         <div aria-live="polite">
           {error && (
@@ -196,24 +225,7 @@ export default function Home() {
           onCancel={addingMore ? handleCancelAddMore : undefined}
         />
 
-        <div className="mt-s4">
-          <CalendarLinkForm onSubmit={handleCalendar} loading={loading} error={calendarError} />
-        </div>
-
-        {!addingMore && (
-          <div className="mt-s3 text-center">
-            <button
-              type="button"
-              onClick={handleDemo}
-              disabled={loading}
-              className="text-sm px-s4 py-s3 rounded border border-line-strong bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:cursor-not-allowed"
-            >
-              Not ready yet? See it with example data
-            </button>
-          </div>
-        )}
-
-        <details className="mt-s5 bg-card rounded border border-line p-s4 text-sm text-ink-soft shadow-1">
+        <details className="mt-s3 bg-card rounded border border-line p-s4 text-sm text-ink-soft shadow-1">
           <summary className="cursor-pointer font-medium text-ink rounded-sm">
             Where do I find these files?
           </summary>
@@ -243,8 +255,14 @@ export default function Home() {
           </ol>
         </details>
 
+        <div className="mt-s4">
+          <CalendarLinkForm onSubmit={handleCalendar} loading={loading} error={calendarError} />
+        </div>
+
+
         <p className="mt-s5 text-center text-xs text-muted">
-          Your files never leave your device. HostStats is not affiliated with Airbnb.{" "}
+          Files are read in your browser and never uploaded. A calendar link is fetched through
+          HostStats&rsquo;s server and never stored. Not affiliated with Airbnb.{" "}
           <a href="/privacy/" className="underline hover:text-ink-soft rounded-sm">
             Privacy
           </a>
