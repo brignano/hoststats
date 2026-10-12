@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -17,7 +18,7 @@ interface Props {
   data: LeadTimeMonth[];
 }
 
-export default function LeadTimeChart({ data }: Props) {
+function LeadTimeChart({ data }: Props) {
   // Twelve three-letter months don't fit on a phone. Rendered client-side only
   // (the dashboard is never prerendered), so reading the width here is safe.
   const narrow = typeof window !== "undefined" && window.innerWidth < 640;
@@ -25,7 +26,7 @@ export default function LeadTimeChart({ data }: Props) {
   return (
     <div className="bg-card rounded border border-line shadow-1 p-s5">
       <h3 className="text-base font-medium text-ink mb-s1">How Far Ahead Guests Book</h3>
-      <p className="text-xs text-slate mb-s4">
+      <p className="text-xs text-muted mb-s4">
         Median days between booking and check-in, by check-in month.
       </p>
       <ResponsiveContainer width="100%" height={220}>
@@ -48,3 +49,7 @@ export default function LeadTimeChart({ data }: Props) {
     </div>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(LeadTimeChart);

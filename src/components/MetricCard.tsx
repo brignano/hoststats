@@ -22,7 +22,7 @@ export default function MetricCard({ label, value, sub, highlight }: Props) {
         highlight ? "border-line-strong" : "border-line"
       }`}
     >
-      <p className="text-xs font-medium uppercase tracking-wide text-slate mb-s2 font-mono">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted mb-s2 font-mono">
         {label}
       </p>
       {/* Mono for data that must read precise — DESIGN.md §5. */}
@@ -33,7 +33,7 @@ export default function MetricCard({ label, value, sub, highlight }: Props) {
       >
         {value}
       </p>
-      {sub && <p className="text-xs text-slate mt-s1">{sub}</p>}
+      {sub && <p className="text-xs text-muted mt-s1">{sub}</p>}
     </div>
   );
 }

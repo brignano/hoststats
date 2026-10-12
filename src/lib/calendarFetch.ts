@@ -36,6 +36,12 @@ export async function loadAirbnbCalendar(link: string, listingName?: string): Pr
     );
   }
 
-  const { reservations, blocked } = parseICal(await res.text(), listingName?.trim() || undefined);
+  // The listing id in the link ("/calendar/ical/12345.ics") names the feed.
+  const calendarId = /\/calendar\/ical\/(\d+)\.ics/.exec(link)?.[1] ?? link;
+  const { reservations, blocked } = parseICal(
+    await res.text(),
+    listingName?.trim() || undefined,
+    `airbnb-${calendarId}`
+  );
   return { reservations, payouts: [], blocked };
 }

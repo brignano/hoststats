@@ -46,7 +46,8 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
         ${loading ? "opacity-60 cursor-not-allowed" : ""}
       `}
     >
-      <input {...getInputProps()} />
+      {/* The hidden file input still needs its own name for screen readers. */}
+      <input {...getInputProps({ "aria-label": "Choose Airbnb CSV or calendar files" })} />
       <div className="flex-1 flex flex-col items-center justify-center">
         {loading ? (
           <p className="text-base text-ink-soft" role="status">
@@ -56,10 +57,10 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
           <p className="text-base font-medium text-interactive-ink">Drop them here</p>
         ) : (
           <>
-            <UploadIcon className="w-8 h-8 mb-s3 text-slate" />
+            <UploadIcon className="w-8 h-8 mb-s3 text-muted" />
             <p className="text-lg font-medium text-ink">Drop your CSVs here</p>
-            <p className="text-sm text-slate mt-s1">or click to browse files</p>
-            <p className="text-xs text-slate mt-s4 max-w-[34ch]">
+            <p className="text-sm text-muted mt-s1">or click to browse files</p>
+            <p className="text-xs text-muted mt-s4 max-w-[34ch]">
               You can upload both your Reservations CSV and Earnings CSV at the same time
             </p>
           </>

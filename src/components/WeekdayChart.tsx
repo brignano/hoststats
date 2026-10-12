@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { WeekdayOccupancy } from "@/lib/models";
 import { formatCount } from "@/lib/format";
@@ -9,7 +10,7 @@ interface Props {
   data: WeekdayOccupancy[];
 }
 
-export default function WeekdayChart({ data }: Props) {
+function WeekdayChart({ data }: Props) {
   return (
     <div className="bg-card rounded border border-line shadow-1 p-s5">
       <h3 className="text-base font-medium text-ink mb-s4">Booked Nights by Day of Week</h3>
@@ -25,3 +26,7 @@ export default function WeekdayChart({ data }: Props) {
     </div>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(WeekdayChart);

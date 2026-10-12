@@ -32,7 +32,7 @@ export default function CalendarLinkForm({ onSubmit, loading, error }: Props) {
       }}
     >
       <h2 className="text-base font-medium text-ink mb-s1">Or paste your calendar link</h2>
-      <p className="text-xs text-slate mb-s4">
+      <p className="text-xs text-muted mb-s4">
         Shows upcoming stays and the gap nights you can still fill. No prices — add the CSVs for
         those.
       </p>
@@ -53,7 +53,7 @@ export default function CalendarLinkForm({ onSubmit, loading, error }: Props) {
       />
 
       <label htmlFor="calendar-name" className="block text-sm font-medium text-ink mt-s3 mb-s1">
-        Listing name <span className="font-normal text-slate">(optional)</span>
+        Listing name <span className="font-normal text-muted">(optional)</span>
       </label>
       <input
         id="calendar-name"
@@ -103,7 +103,7 @@ export default function CalendarLinkForm({ onSubmit, loading, error }: Props) {
             link.
           </li>
         </ol>
-        <p className="mt-s2 text-xs text-slate">
+        <p className="mt-s2 text-xs text-muted">
           Treat the link like a password: anyone with it can see your booked dates. Airbnb can reset
           it from the same screen. HostStats fetches it once through its own server because Airbnb
           won&rsquo;t let a web page read it directly, and never stores or logs it.

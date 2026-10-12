@@ -10,6 +10,10 @@ export interface Reservation {
   payoutAmount?: number;
   /** When the guest booked. Airbnb's reservations export calls this "Booked". */
   bookedAt?: Date;
+  /** Which import this came from. A CSV row's fields beat a calendar copy's. */
+  source?: "csv" | "calendar";
+  /** For calendar stays: which feed, so one feed's stays can be named together. */
+  calendarId?: string;
 }
 
 export interface Payout {
@@ -26,6 +30,7 @@ export interface BlockedSpan {
   /** Exclusive, like a check-out date. */
   end: Date;
   listingName?: string;
+  calendarId?: string;
 }
 
 export interface ParsedData {
@@ -140,6 +145,8 @@ export interface PaceMonth {
   month: string; // "YYYY-MM"
   label: string; // "Jun 2025"
   daysInMonth: number;
+  /** Listings in the data; a month's capacity is daysInMonth × listings. */
+  listings: number;
   /** Nights booked for this month as of the reference date. */
   nightsNow: number;
   /** Nights booked for the same month a year earlier, as of the same day a year earlier. */

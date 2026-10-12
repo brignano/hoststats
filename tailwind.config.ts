@@ -24,6 +24,11 @@ const config: Config = {
         ink: "var(--ink)",
         "ink-soft": "var(--ink-soft)",
         slate: "var(--slate)",
+        // Small secondary text. --slate is 3.44:1 on light surfaces, which
+        // tokens.css reserves for large text and UI marks (DESIGN.md §9 wants
+        // 4.5:1 for body text); --n-600 is 5.28:1 there and lighter, so
+        // higher contrast, in dark mode.
+        muted: "var(--n-600)",
         bg: "var(--bg)",
         card: "var(--card)",
         line: "var(--line)",

@@ -33,7 +33,7 @@ function MoneyField({
       </label>
       <div className="relative">
         <span
-          className="absolute left-s3 top-1/2 -translate-y-1/2 text-slate font-mono"
+          className="absolute left-s3 top-1/2 -translate-y-1/2 text-muted font-mono"
           aria-hidden
         >
           $
@@ -54,7 +54,7 @@ function MoneyField({
           className={inputClass}
         />
       </div>
-      <p id={`${id}-hint`} className="text-xs text-slate mt-s1">
+      <p id={`${id}-hint`} className="text-xs text-muted mt-s1">
         {hint}
       </p>
     </div>
@@ -71,7 +71,7 @@ export default function CostsForm({ costs, onChange, remember, onRememberChange 
   return (
     <div className="bg-card rounded border border-line shadow-1 p-s5">
       <h3 className="text-base font-medium text-ink mb-s1">Your costs</h3>
-      <p className="text-xs text-slate mb-s4">
+      <p className="text-xs text-muted mb-s4">
         Airbnb shows payouts, not profit. Rough numbers are fine.
         {!remember && " They stay in this tab."}
       </p>
@@ -101,7 +101,7 @@ export default function CostsForm({ costs, onChange, remember, onRememberChange 
           />
           <span>
             Remember my costs on this device
-            <span className="block text-xs text-slate">
+            <span className="block text-xs text-muted">
               Saved in this browser only — never sent anywhere. Untick to delete them.
             </span>
           </span>

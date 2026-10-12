@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Action } from "@/lib/actions";
 import { AlertTriangleIcon, CheckCircleIcon, InfoIcon } from "./icons";
 
@@ -12,7 +13,7 @@ interface Props {
  * the section that explains it. The tone comes with an icon as well as a
  * colour, so it still reads in greyscale (DESIGN.md §3).
  */
-export default function NextActions({ actions }: Props) {
+function NextActions({ actions }: Props) {
   return (
     <section
       aria-labelledby="next-actions-heading"
@@ -56,3 +57,7 @@ export default function NextActions({ actions }: Props) {
     </section>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(NextActions);

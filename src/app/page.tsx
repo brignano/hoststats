@@ -17,7 +17,7 @@ const Dashboard = dynamic(() => import("@/components/Dashboard"), {
   ssr: false,
   loading: () => (
     <main className="min-h-screen flex items-center justify-center px-s4">
-      <p className="text-lg text-slate" role="status">
+      <p className="text-lg text-muted" role="status">
         Building your dashboard…
       </p>
     </main>
@@ -49,19 +49,20 @@ export default function Home() {
 
   /** Add newly parsed data to what's loaded (or replace it, on a fresh start). */
   function commit(parsed: ParsedData[], demo: boolean) {
+    // Adding to the example data starts fresh: a host's own stays must never
+    // be mixed with the sample's, or inherit its costs.
+    const leavingDemo = isDemo && !demo;
     let combined: ParsedData =
-      addingMore && data ? data : { reservations: [], payouts: [], blocked: [] };
+      addingMore && data && !isDemo ? data : { reservations: [], payouts: [], blocked: [] };
     for (const p of parsed) combined = mergeParsed(combined, p);
     setData(combined);
     setIsDemo(demo);
     if (demo) {
       setCosts(SAMPLE_COSTS);
-    } else if (costs.monthlyFixed === 0 && costs.perStay === 0) {
+    } else if (leavingDemo || (costs.monthlyFixed === 0 && costs.perStay === 0)) {
       const saved = loadSavedCosts();
-      if (saved) {
-        setCosts(saved);
-        setRememberCosts(true);
-      }
+      setCosts(saved ?? NO_COSTS);
+      if (saved) setRememberCosts(true);
     }
     setAddingMore(false);
   }
@@ -172,7 +173,7 @@ export default function Home() {
         <div className="text-center mb-s6">
           <h1 className="text-3xl font-semibold tracking-tight mb-s2">HostStats</h1>
           <p className="text-lg text-ink-soft">See what your Airbnb really earns — no account needed.</p>
-          <p className="text-sm text-slate mt-s2">
+          <p className="text-sm text-muted mt-s2">
             Upload your Airbnb exports to see profit after costs, the occupancy you need to break
             even, and the gap nights you&rsquo;re losing. Your files stay on your device.
           </p>
@@ -242,7 +243,7 @@ export default function Home() {
           </ol>
         </details>
 
-        <p className="mt-s5 text-center text-xs text-slate">
+        <p className="mt-s5 text-center text-xs text-muted">
           Your files never leave your device. HostStats is not affiliated with Airbnb.{" "}
           <a href="/privacy/" className="underline hover:text-ink-soft rounded-sm">
             Privacy

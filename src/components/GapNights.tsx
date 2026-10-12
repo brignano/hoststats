@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useState } from "react";
 import { GapReport } from "@/lib/models";
 import { formatCount, formatMoney, formatNightRange } from "@/lib/format";
 import MetricCard from "./MetricCard";
@@ -22,7 +23,8 @@ function gapLine(g: GapReport["gaps"][number], showListing: boolean) {
  * Empty nights stranded between two stays. Airbnb's calendar shows them one
  * at a time; nobody adds them up or prices them.
  */
-export default function GapNights({ report, nightValue }: Props) {
+function GapNights({ report, nightValue }: Props) {
+  const [showAll, setShowAll] = useState(false);
   const { gaps, pastNights, pastValue, upcomingNights, upcomingValue } = report;
   const past = gaps.filter((g) => !g.upcoming);
   const upcoming = gaps.filter((g) => g.upcoming);
@@ -94,18 +96,28 @@ export default function GapNights({ report, nightValue }: Props) {
             )}
           </p>
 
-          <details className="bg-card rounded border border-line p-s4 text-sm text-ink-soft shadow-1">
+          <details
+            className="bg-card rounded border border-line p-s4 text-sm text-ink-soft shadow-1"
+            onToggle={(e) => setShowAll(e.currentTarget.open)}
+          >
             <summary className="cursor-pointer font-medium text-ink rounded-sm">
-              See every gap
+              See every gap ({formatCount(past.length)})
             </summary>
-            <ul className="mt-s3 space-y-s1 font-mono">
-              {past.map((g) => (
-                <li key={g.start.getTime() + (g.listingName ?? "")}>{gapLine(g, showListing)}</li>
-              ))}
-            </ul>
+            {/* Built only once opened: a big account can have hundreds. */}
+            {showAll && (
+              <ul className="mt-s3 space-y-s1 font-mono">
+                {past.map((g) => (
+                  <li key={g.start.getTime() + (g.listingName ?? "")}>{gapLine(g, showListing)}</li>
+                ))}
+              </ul>
+            )}
           </details>
         </>
       )}
     </div>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(GapNights);

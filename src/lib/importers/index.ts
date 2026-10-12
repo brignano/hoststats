@@ -20,7 +20,7 @@ export async function parseFile(file: File): Promise<ParsedData> {
   // A downloaded Airbnb calendar (.ics) works the same as a pasted link.
   const ical = await import("./ical");
   if (ical.isICal(text)) {
-    return { payouts: [], ...ical.parseICal(text) };
+    return { payouts: [], ...ical.parseICal(text, undefined, `file-${file.name}`) };
   }
 
   const firstLine = text.split("\n")[0] ?? "";

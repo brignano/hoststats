@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { TaxStayRow, TaxYear } from "@/lib/models";
 import { formatCount, formatMoney } from "@/lib/format";
 import { taxYearCsv } from "@/lib/tax";
@@ -16,7 +16,7 @@ const tabClass = (active: boolean) =>
   `px-s3 py-s1 text-sm rounded-sm border font-mono tabular-nums transition-colors duration-fast ease-brand ${
     active
       ? "border-line-strong bg-card text-ink font-semibold"
-      : "border-transparent text-slate hover:text-ink hover:bg-surface-hover"
+      : "border-transparent text-muted hover:text-ink hover:bg-surface-hover"
   }`;
 
 /**
@@ -42,7 +42,7 @@ function download(summary: TaxYear, rows: TaxStayRow[]) {
  * The numbers a US host retypes into a spreadsheet every spring, plus the two
  * thresholds that change how rental income is taxed. Flags, not advice.
  */
-export default function TaxSummary({ years, rowsFor }: Props) {
+function TaxSummary({ years, rowsFor }: Props) {
   const [selected, setSelected] = useState(() => defaultYear(years));
   const y = years.find((t) => t.year === selected) ?? years[years.length - 1];
   const soFar = y.inProgress ? " so far" : "";
@@ -50,12 +50,12 @@ export default function TaxSummary({ years, rowsFor }: Props) {
   return (
     <div className="space-y-s4">
       {years.length > 1 && (
-        <div role="tablist" aria-label="Tax year" className="flex flex-wrap gap-s1">
+        <div role="group" aria-label="Tax year" className="flex flex-wrap gap-s1">
           {years.map((t) => (
             <button
               key={t.year}
-              role="tab"
-              aria-selected={t.year === y.year}
+              type="button"
+              aria-pressed={t.year === y.year}
               onClick={() => setSelected(t.year)}
               className={tabClass(t.year === y.year)}
             >
@@ -152,3 +152,7 @@ export default function TaxSummary({ years, rowsFor }: Props) {
     </div>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(TaxSummary);

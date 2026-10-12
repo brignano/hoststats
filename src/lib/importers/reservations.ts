@@ -73,6 +73,13 @@ function nightsBetween(checkIn: Date, checkOut: Date): number {
   return Math.round(ms / (1000 * 60 * 60 * 24));
 }
 
+/** "$1,234.50" -> 1234.5; blank or junk ("N/A") -> undefined, never NaN. */
+function parseAmount(raw: string | undefined): number | undefined {
+  if (!raw?.trim()) return undefined;
+  const n = parseFloat(raw.replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(n) ? n : undefined;
+}
+
 export function isReservationsCSV(headers: string[]): boolean {
   const lower = headers.map((h) => h.toLowerCase().trim());
   const hasCheckIn = COLUMN_MAP.checkIn.some((s) => lower.includes(s));
@@ -138,11 +145,9 @@ export function parseReservationsCSV(csvText: string): Reservation[] {
       nights,
       guestName: guestCol ? row[guestCol]?.trim() : undefined,
       listingName: listingCol ? row[listingCol]?.trim() : undefined,
-      payoutAmount:
-        payoutCol && row[payoutCol]
-          ? parseFloat(row[payoutCol].replace(/[^0-9.\-]/g, ""))
-          : undefined,
+      payoutAmount: parseAmount(payoutCol ? row[payoutCol] : undefined),
       bookedAt,
+      source: "csv",
     });
   }
 

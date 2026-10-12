@@ -199,8 +199,16 @@ export function calcMonthlyIncome(
 /** Average income per booked night, after Airbnb's fees. 0 if we can't tell. */
 export function incomePerNight(reservations: Reservation[], payouts: Payout[]): number {
   const active = reservations.filter(isActive);
-  const nights = active.reduce((sum, r) => sum + r.nights, 0);
   if (payouts.length > 0) {
+    // Divide by the nights those payouts paid for: stays checking in inside
+    // the export's date range. Airbnb pays out shortly after check-in, so
+    // allow a week before the first payout. Upcoming, unpaid stays don't count.
+    const times = payouts.map((p) => p.date.getTime());
+    const from = Math.min(...times) - 7 * 86_400_000;
+    const to = Math.max(...times);
+    const nights = active
+      .filter((r) => r.checkIn.getTime() >= from && r.checkIn.getTime() <= to)
+      .reduce((sum, r) => sum + r.nights, 0);
     return nights > 0 ? totalRevenue(payouts) / nights : 0;
   }
   const paid = active.filter((r) => (r.payoutAmount ?? 0) > 0);
@@ -227,7 +235,11 @@ export function calcMonthlyProfit(
     staysByMonth.set(key, (staysByMonth.get(key) ?? 0) + 1);
   }
 
-  const keys = [...income.keys(), ...staysByMonth.keys()].sort();
+  // Only the months the income data covers. Upcoming stays (from the
+  // calendar, or not yet paid out) would otherwise show as months of pure
+  // cost, and an earnings export that starts later than the reservations
+  // would show early months as losses that never happened.
+  const keys = [...income.keys()].sort();
   if (keys.length === 0) return [];
 
   return monthRange(keys[0], keys[keys.length - 1]).map((key) => {
@@ -262,7 +274,18 @@ export function calcBreakEven(
   else if (contribution <= 0) needed = null;
   else needed = Math.ceil(costs.monthlyFixed / contribution);
 
-  const months = calcMonthlyOccupancy(reservations).length;
+  // The same span calcMonthlyOccupancy covers (first to last booked night),
+  // counted directly: this runs on every keystroke in the costs form.
+  let first = Infinity;
+  let last = -Infinity;
+  for (const r of active) {
+    if (r.checkOut <= r.checkIn) continue;
+    const lastNight = new Date(r.checkOut);
+    lastNight.setDate(lastNight.getDate() - 1);
+    first = Math.min(first, r.checkIn.getFullYear() * 12 + r.checkIn.getMonth());
+    last = Math.max(last, lastNight.getFullYear() * 12 + lastNight.getMonth());
+  }
+  const months = Number.isFinite(first) ? last - first + 1 : 0;
 
   return {
     incomePerNight: perNight,

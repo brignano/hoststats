@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useDeferredValue, useMemo } from "react";
 import { Costs, ParsedData } from "@/lib/models";
 import {
   calcMonthlyOccupancy,
@@ -58,7 +58,7 @@ function SectionHeading({ title, sub }: { title: string; sub: string }) {
   return (
     <div className="mb-s4">
       <h2 className="text-lg font-semibold text-ink">{title}</h2>
-      <p className="text-sm text-slate">{sub}</p>
+      <p className="text-sm text-muted">{sub}</p>
     </div>
   );
 }
@@ -159,21 +159,29 @@ export default function Dashboard({
     () => calcGapNights(reservations, nightValue, paceAsOf, data.blocked),
     [reservations, nightValue, paceAsOf, data.blocked]
   );
+  // The inputs update on every keystroke; the figures that depend on costs
+  // follow a beat behind so typing never waits on a big account's maths.
+  const deferredCosts = useDeferredValue(costs);
   const monthlyProfit = useMemo(
-    () => calcMonthlyProfit(reservations, payouts, costs),
-    [reservations, payouts, costs]
+    () => calcMonthlyProfit(reservations, payouts, deferredCosts),
+    [reservations, payouts, deferredCosts]
   );
   const breakEven = useMemo(
-    () => calcBreakEven(reservations, payouts, costs),
-    [reservations, payouts, costs]
+    () => calcBreakEven(reservations, payouts, deferredCosts),
+    [reservations, payouts, deferredCosts]
   );
 
   const pace = useMemo(() => calcPace(reservations, paceAsOf), [reservations, paceAsOf]);
   const leadTimes = useMemo(() => calcLeadTimes(reservations), [reservations]);
 
   const taxYears = useMemo(
-    () => calcTaxYears(reservations, payouts, costs),
-    [reservations, payouts, costs]
+    () => calcTaxYears(reservations, payouts, deferredCosts, paceAsOf),
+    [reservations, payouts, deferredCosts, paceAsOf]
+  );
+
+  const taxRowsFor = useCallback(
+    (year: number) => taxStayRows(reservations, year),
+    [reservations]
   );
 
   const hasIncome = nightValue > 0;
@@ -219,7 +227,7 @@ export default function Dashboard({
         <div className="flex items-center justify-between mb-s6 flex-wrap gap-s3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-ink">HostStats</h1>
-            <p className="text-sm text-slate mt-s1">
+            <p className="text-sm text-muted mt-s1">
               What your Airbnb actually earns, and where it&rsquo;s leaking money
             </p>
           </div>
@@ -344,7 +352,7 @@ export default function Dashboard({
               title="Tax season"
               sub="Year totals for a US return — checked against your Airbnb tax forms, not instead of them"
             />
-            <TaxSummary years={taxYears} rowsFor={(year) => taxStayRows(reservations, year)} />
+            <TaxSummary years={taxYears} rowsFor={taxRowsFor} />
           </section>
         )}
 
@@ -394,7 +402,7 @@ export default function Dashboard({
           </div>
         )}
 
-        <p className="mt-s7 text-center text-xs text-slate">
+        <p className="mt-s7 text-center text-xs text-muted">
           HostStats is not affiliated with Airbnb.{" "}
           <a href="/privacy/" className="underline hover:text-ink-soft rounded-sm">
             Privacy

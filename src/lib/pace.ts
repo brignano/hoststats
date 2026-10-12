@@ -41,14 +41,16 @@ function nightsInMonth(
 ): { nights: number; unknown: number } {
   const seen = new Set<string>();
   let unknown = 0;
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 1);
   for (const r of reservations) {
     if (!isActive(r)) continue;
+    // Most stays are nowhere near this month; don't walk their nights.
+    if (r.checkIn >= monthEnd || r.checkOut <= monthStart) continue;
     if (bookedBy) {
       if (r.bookedAt === undefined) {
         if (!assumeBooked) {
-          const overlaps =
-            r.checkIn < new Date(year, month + 1, 1) && r.checkOut > new Date(year, month, 1);
-          if (overlaps) unknown++;
+          unknown++;
           continue;
         }
       } else if (r.bookedAt > bookedBy) continue;
@@ -71,6 +73,12 @@ export function calcPace(reservations: Reservation[], asOf: Date, months = 3): P
   const lastYearDay = yearEarlier(asOfDay);
   lastYearDay.setHours(23, 59, 59);
 
+  // Capacity is every listing's nights, not one calendar's.
+  const listings = Math.max(
+    1,
+    new Set(reservations.filter(isActive).map((r) => r.listingName ?? "")).size
+  );
+
   const out: PaceMonth[] = [];
   for (let i = 0; i < months; i++) {
     const ref = new Date(asOf.getFullYear(), asOf.getMonth() + i, 1);
@@ -89,6 +97,7 @@ export function calcPace(reservations: Reservation[], asOf: Date, months = 3): P
       month: `${y}-${String(m + 1).padStart(2, "0")}`,
       label: `${MONTHS[m]} ${y}`,
       daysInMonth: new Date(y, m + 1, 0).getDate(),
+      listings,
       nightsNow: now,
       // Without booking dates for last year's stays, the comparison is a guess. Say nothing.
       lastYearSamePoint: hasLastYear && sameLastYear.unknown === 0 ? sameLastYear.nights : null,
@@ -134,10 +143,16 @@ export function pricingDeadline(
   const top = candidates.reduce((a, b) => (b.medianDays! > a.medianDays! ? b : a));
 
   // The next time that month comes round.
+  // The next deadline still ahead: the month's next occurrence can be close
+  // enough that its deadline has already gone, so step a year further.
   let year = today.getFullYear();
-  if (new Date(year, top.month, 1) <= today) year++;
-  const deadline = new Date(year, top.month, 1);
-  deadline.setDate(deadline.getDate() - top.medianDays!);
+  let deadline: Date;
+  for (;;) {
+    deadline = new Date(year, top.month, 1);
+    deadline.setDate(deadline.getDate() - top.medianDays!);
+    if (deadline > today) break;
+    year++;
+  }
 
   const day = deadline.getDate();
   const part = day <= 10 ? "early" : day <= 20 ? "mid" : "late";
