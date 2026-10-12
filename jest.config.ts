@@ -5,6 +5,8 @@ const config: Config = {
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: { jsx: "react-jsx" } }],
   },
+  // Browser tests run under Playwright (npm run test:e2e), not Jest.
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/e2e/"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },

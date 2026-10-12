@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The format check compares against the PR's base commit.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -24,6 +27,19 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      # Only the files this PR touches, so older drift in untouched files
+      # doesn't block anyone — but nothing new adds to it.
+      - name: Format (changed files)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          files=$(git diff --name-only --diff-filter=ACMR "$BASE_SHA" HEAD -- \
+            '*.ts' '*.tsx' '*.js' '*.mjs' '*.css' '*.json' '*.md' '*.yml' '*.yaml')
+          if [ -n "$files" ]; then
+            echo "$files" | xargs npx prettier --check --ignore-unknown
+          fi
 
       - name: Typecheck
         run: npm run typecheck
@@ -52,3 +68,37 @@ jobs:
       # without needing Cloudflare credentials.
       - name: Validate Cloudflare deploy config
         run: npx wrangler deploy --dry-run
+
+  # The app in a real browser: the landing page, the demo, the demo-to-own-data
+  # flow, a stubbed calendar link, and zero axe accessibility violations in
+  # both themes at desktop and phone widths.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

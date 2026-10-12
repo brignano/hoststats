@@ -34,3 +34,7 @@ next-env.d.ts
 
 # Wrangler local dev state
 .wrangler/
+
+# Playwright
+test-results/
+playwright-report/
