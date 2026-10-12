@@ -9,6 +9,7 @@ import { Costs, ParsedData } from "@/lib/models";
 import { parseFile } from "@/lib/importers";
 import { mergeParsed } from "@/lib/merge";
 import { loadAirbnbCalendar } from "@/lib/calendarFetch";
+import { clearSavedCosts, loadSavedCosts, saveCosts } from "@/lib/savedCosts";
 
 // The dashboard pulls in Recharts (~470 KB). Nobody sees a chart until they
 // have uploaded something, so keep it out of the first paint entirely.
@@ -39,6 +40,9 @@ export default function Home() {
   const [isDemo, setIsDemo] = useState(false);
   // Lives here, not in the dashboard, so "Add more files" doesn't wipe it.
   const [costs, setCosts] = useState<Costs>(NO_COSTS);
+  // Opt-in "remember on this device". Read when the dashboard first opens
+  // rather than on page load, so the prerendered page never touches storage.
+  const [rememberCosts, setRememberCosts] = useState(false);
 
   /** Add newly parsed data to what's loaded (or replace it, on a fresh start). */
   function commit(parsed: ParsedData[], demo: boolean) {
@@ -47,7 +51,15 @@ export default function Home() {
     for (const p of parsed) combined = mergeParsed(combined, p);
     setData(combined);
     setIsDemo(demo);
-    if (demo) setCosts(SAMPLE_COSTS);
+    if (demo) {
+      setCosts(SAMPLE_COSTS);
+    } else if (costs.monthlyFixed === 0 && costs.perStay === 0) {
+      const saved = loadSavedCosts();
+      if (saved) {
+        setCosts(saved);
+        setRememberCosts(true);
+      }
+    }
     setAddingMore(false);
   }
 
@@ -102,6 +114,18 @@ export default function Home() {
     }
   }
 
+  function handleCostsChange(next: Costs) {
+    setCosts(next);
+    // The demo's numbers are never saved over a host's real ones.
+    if (rememberCosts && !isDemo) saveCosts(next);
+  }
+
+  function handleRememberChange(on: boolean) {
+    setRememberCosts(on);
+    if (on) saveCosts(costs);
+    else clearSavedCosts();
+  }
+
   function handleReset() {
     setData(null);
     setError(null);
@@ -128,7 +152,9 @@ export default function Home() {
       <Dashboard
         data={data}
         costs={costs}
-        onCostsChange={setCosts}
+        onCostsChange={handleCostsChange}
+        rememberCosts={isDemo ? undefined : rememberCosts}
+        onRememberCostsChange={handleRememberChange}
         onReset={handleReset}
         onAddMore={handleAddMore}
         isDemo={isDemo}

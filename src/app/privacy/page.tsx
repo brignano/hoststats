@@ -41,8 +41,16 @@ export default function PrivacyPolicy() {
               database, and its only server code is the calendar fetch described below.
             </p>
             <p className="mt-s3">
-              Nothing is written to disk. Close or refresh the tab and the data is gone. There is no
-              &ldquo;delete my data&rdquo; process because nothing was ever kept.
+              Your files and statistics are not written to disk. Close or refresh the tab and they
+              are gone. There is no &ldquo;delete my data&rdquo; process because nothing was ever
+              kept.
+            </p>
+            <p className="mt-s3">
+              The one thing HostStats can keep, and only if you ask, is your two cost figures: tick
+              &ldquo;Remember my costs on this device&rdquo; and they are saved in your
+              browser&rsquo;s local storage so you don&rsquo;t retype them next time. They stay on
+              that device, are never sent anywhere, and untick the box (or clear your browser data)
+              to delete them.
             </p>
           </section>
 

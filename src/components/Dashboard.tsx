@@ -37,6 +37,8 @@ interface Props {
   data: ParsedData;
   costs: Costs;
   onCostsChange: (costs: Costs) => void;
+  rememberCosts?: boolean;
+  onRememberCostsChange?: (remember: boolean) => void;
   onReset: () => void;
   onAddMore: () => void;
   disableAddMore?: boolean;
@@ -123,6 +125,8 @@ export default function Dashboard({
   data,
   costs,
   onCostsChange,
+  rememberCosts,
+  onRememberCostsChange,
   onReset,
   onAddMore,
   disableAddMore,
@@ -203,7 +207,12 @@ export default function Dashboard({
         <section className="mb-s7">
           <SectionHeading title="Profit" sub="Payouts minus what the place costs to run" />
           <div className="space-y-s4">
-            <CostsForm costs={costs} onChange={onCostsChange} />
+            <CostsForm
+              costs={costs}
+              onChange={onCostsChange}
+              remember={rememberCosts}
+              onRememberChange={onRememberCostsChange}
+            />
             {!hasIncome ? (
               <div className="state state-info">
                 <InfoIcon className="state-icon" />
