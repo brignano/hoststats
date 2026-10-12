@@ -22,6 +22,8 @@ import RevenueChart from "./RevenueChart";
 import ProfitChart from "./ProfitChart";
 import CostsForm from "./CostsForm";
 import GapNights from "./GapNights";
+import TaxSummary from "./TaxSummary";
+import { calcTaxYears, taxStayRows } from "@/lib/tax";
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -151,6 +153,11 @@ export default function Dashboard({
     [reservations, payouts, costs]
   );
 
+  const taxYears = useMemo(
+    () => calcTaxYears(reservations, payouts, costs),
+    [reservations, payouts, costs]
+  );
+
   const hasIncome = nightValue > 0;
   const hasCosts = costs.monthlyFixed > 0 || costs.perStay > 0;
   const netProfit = monthlyProfit.reduce((sum, m) => sum + m.profit, 0);
@@ -258,6 +265,16 @@ export default function Dashboard({
               sub="Short empty stretches stuck between two stays"
             />
             <GapNights report={gapReport} nightValue={nightValue} />
+          </section>
+        )}
+
+        {taxYears.length > 0 && (
+          <section className="mb-s7">
+            <SectionHeading
+              title="Tax season"
+              sub="Year totals for a US return — checked against your Airbnb tax forms, not instead of them"
+            />
+            <TaxSummary years={taxYears} rowsFor={(year) => taxStayRows(reservations, year)} />
           </section>
         )}
 
