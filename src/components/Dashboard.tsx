@@ -1,11 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { ParsedData } from "@/lib/models";
+import { Costs, ParsedData } from "@/lib/models";
 import {
   calcMonthlyOccupancy,
   calcWeekdayOccupancy,
   calcMonthlyRevenue,
+  calcMonthlyProfit,
+  calcBreakEven,
+  calcGapNights,
+  incomePerNight,
   totalRevenue,
   totalBookedNights,
   avgOccupancyPct,
@@ -15,10 +19,22 @@ import MetricCard from "./MetricCard";
 import OccupancyChart from "./OccupancyChart";
 import WeekdayChart from "./WeekdayChart";
 import RevenueChart from "./RevenueChart";
-import { AlertTriangleIcon, InfoIcon, PlusIcon, ResetIcon } from "./icons";
+import ProfitChart from "./ProfitChart";
+import CostsForm from "./CostsForm";
+import GapNights from "./GapNights";
+import {
+  AlertCircleIcon,
+  AlertTriangleIcon,
+  CheckCircleIcon,
+  InfoIcon,
+  PlusIcon,
+  ResetIcon,
+} from "./icons";
 
 interface Props {
   data: ParsedData;
+  costs: Costs;
+  onCostsChange: (costs: Costs) => void;
   onReset: () => void;
   onAddMore: () => void;
   disableAddMore?: boolean;
@@ -28,7 +44,88 @@ interface Props {
 const buttonClass =
   "inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-strong bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:border-line disabled:cursor-not-allowed";
 
-export default function Dashboard({ data, onReset, onAddMore, disableAddMore, isDemo }: Props) {
+function SectionHeading({ title, sub }: { title: string; sub: string }) {
+  return (
+    <div className="mb-s4">
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <p className="text-sm text-slate">{sub}</p>
+    </div>
+  );
+}
+
+function BreakEvenVerdict({
+  needed,
+  actual,
+  losingMonths,
+  totalMonths,
+}: {
+  needed: number | null;
+  actual: number;
+  losingMonths: number;
+  totalMonths: number;
+}) {
+  // An average can clear break-even while most months lose money — a strong
+  // summer carrying a long winter. Say so rather than let the average hide it.
+  const seasonal =
+    losingMonths > 0 ? (
+      <>
+        {" "}
+        But {losingMonths} of {totalMonths} months lost money — see which below.
+      </>
+    ) : null;
+  if (needed === null) {
+    return (
+      <div className="state state-danger">
+        <AlertCircleIcon className="state-icon" />
+        <span>
+          <strong className="font-semibold">Each stay costs more than it earns.</strong> More
+          bookings won&rsquo;t fix this — raise the nightly price, the cleaning fee, or the minimum
+          stay.
+        </span>
+      </div>
+    );
+  }
+  const n = (x: number) => `${formatCount(x)} night${x === 1 ? "" : "s"}`;
+  if (actual >= needed) {
+    const mostlyLosing = losingMonths * 2 > totalMonths;
+    return (
+      <div className={`state ${mostlyLosing ? "state-attention" : "state-success"}`}>
+        {mostlyLosing ? (
+          <AlertTriangleIcon className="state-icon" />
+        ) : (
+          <CheckCircleIcon className="state-icon" />
+        )}
+        <span>
+          <strong className="font-semibold">
+            You need {n(needed)} a month to cover your costs.
+          </strong>{" "}
+          You&rsquo;ve averaged {formatCount(actual)}, a cushion of{" "}
+          {formatCount(Math.round((actual - needed) * 10) / 10)}.{seasonal}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="state state-attention">
+      <AlertTriangleIcon className="state-icon" />
+      <span>
+        <strong className="font-semibold">You need {n(needed)} a month to cover your costs.</strong>{" "}
+        You&rsquo;ve averaged {formatCount(actual)}, about{" "}
+        {formatCount(Math.round((needed - actual) * 10) / 10)} short.{seasonal}
+      </span>
+    </div>
+  );
+}
+
+export default function Dashboard({
+  data,
+  costs,
+  onCostsChange,
+  onReset,
+  onAddMore,
+  disableAddMore,
+  isDemo,
+}: Props) {
   const { reservations, payouts } = data;
 
   const monthlyOccupancy = useMemo(() => calcMonthlyOccupancy(reservations), [reservations]);
@@ -40,6 +137,28 @@ export default function Dashboard({ data, onReset, onAddMore, disableAddMore, is
   const revenue = totalRevenue(payouts);
   const hasRevenue = payouts.length > 0;
 
+  const nightValue = useMemo(() => incomePerNight(reservations, payouts), [reservations, payouts]);
+  const gapReport = useMemo(
+    () => calcGapNights(reservations, nightValue),
+    [reservations, nightValue]
+  );
+  const monthlyProfit = useMemo(
+    () => calcMonthlyProfit(reservations, payouts, costs),
+    [reservations, payouts, costs]
+  );
+  const breakEven = useMemo(
+    () => calcBreakEven(reservations, payouts, costs),
+    [reservations, payouts, costs]
+  );
+
+  const hasIncome = nightValue > 0;
+  const hasCosts = costs.monthlyFixed > 0 || costs.perStay > 0;
+  const netProfit = monthlyProfit.reduce((sum, m) => sum + m.profit, 0);
+  const profitSpan =
+    monthlyProfit.length > 0
+      ? `${monthlyProfit[0].label} – ${monthlyProfit[monthlyProfit.length - 1].label}`
+      : undefined;
+
   return (
     <main className="min-h-screen px-s4 py-s6">
       <div className="max-w-measure mx-auto">
@@ -47,7 +166,9 @@ export default function Dashboard({ data, onReset, onAddMore, disableAddMore, is
         <div className="flex items-center justify-between mb-s6 flex-wrap gap-s3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-ink">HostStats</h1>
-            <p className="text-sm text-slate mt-s1">Your Airbnb at a glance</p>
+            <p className="text-sm text-slate mt-s1">
+              What your Airbnb actually earns, and where it&rsquo;s leaking money
+            </p>
           </div>
           <div className="flex items-center gap-s2 flex-wrap">
             <button onClick={onAddMore} disabled={disableAddMore} className={buttonClass}>
@@ -70,6 +191,77 @@ export default function Dashboard({ data, onReset, onAddMore, disableAddMore, is
             </span>
           </div>
         )}
+
+        {/* Profit — the part Airbnb can't show, because it doesn't know your costs */}
+        <section className="mb-s7">
+          <SectionHeading title="Profit" sub="Payouts minus what the place costs to run" />
+          <div className="space-y-s4">
+            <CostsForm costs={costs} onChange={onCostsChange} />
+            {!hasIncome ? (
+              <div className="state state-info">
+                <InfoIcon className="state-icon" />
+                <span>
+                  <strong className="font-semibold">Add an Earnings CSV</strong> to see profit.
+                </span>
+              </div>
+            ) : !hasCosts ? (
+              <div className="state state-info">
+                <InfoIcon className="state-icon" />
+                <span>
+                  <strong className="font-semibold">Enter your costs above</strong> to see your
+                  profit and how many nights a month you need to break even. You earn about{" "}
+                  {formatMoney(nightValue)} per booked night after Airbnb&rsquo;s fees.
+                </span>
+              </div>
+            ) : (
+              <>
+                {reservations.length > 0 && (
+                  <BreakEvenVerdict
+                    needed={breakEven.nightsPerMonth}
+                    actual={breakEven.actualNightsPerMonth}
+                    losingMonths={monthlyProfit.filter((m) => m.profit < 0).length}
+                    totalMonths={monthlyProfit.length}
+                  />
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-s3">
+                  <MetricCard
+                    label="Net Profit"
+                    value={formatMoney(netProfit)}
+                    sub={profitSpan}
+                    highlight
+                  />
+                  {totalNights > 0 && (
+                    <MetricCard
+                      label="Profit / Night"
+                      value={formatMoney(netProfit / totalNights)}
+                      sub={`of ${formatMoney(nightValue)} earned`}
+                    />
+                  )}
+                  {breakEven.nightsPerMonth !== null && reservations.length > 0 && (
+                    <MetricCard
+                      label="Break-even Nights"
+                      value={formatCount(breakEven.nightsPerMonth)}
+                      sub={`a month · ${breakEven.occupancyPct}% occupancy`}
+                    />
+                  )}
+                </div>
+                {monthlyProfit.length > 0 && <ProfitChart data={monthlyProfit} />}
+              </>
+            )}
+          </div>
+        </section>
+
+        {reservations.length > 0 && (
+          <section className="mb-s7">
+            <SectionHeading
+              title="Gap nights"
+              sub="Short empty stretches stuck between two stays"
+            />
+            <GapNights report={gapReport} nightValue={nightValue} />
+          </section>
+        )}
+
+        <SectionHeading title="Bookings" sub="Occupancy and earnings over time" />
 
         {/* Summary cards */}
         {reservations.length > 0 && (

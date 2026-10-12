@@ -8,7 +8,7 @@
  * SLOT ASSIGNMENT — fixed, never cycled.
  * tokens.chart.css is explicit that the ORDER is the colourblind-safety
  * mechanism: the palette's adjacent-pair separation is measured in slot order,
- * so reassigning slots silently breaks it. Each of the three charts here shows
+ * so reassigning slots silently breaks it. Each of the four charts here shows
  * a single series, and each series is a distinct entity, so each gets one slot
  * mapped once by name — not by position on the page, and not by rank.
  *
@@ -16,12 +16,16 @@
  * direct label. `earnings` uses slot 3, and satisfies that: the chart carries a
  * heading, a labelled Y axis, and a tooltip, so the colour is never the only
  * thing identifying the mark.
+ *
+ * `profit` goes below zero in a losing month. The sign is carried by position
+ * against the zero line, not by colour, so it stays one series and one slot.
  */
 
 export const CHART_SERIES = {
   occupancy: "var(--chart-1)",
   bookedNights: "var(--chart-2)",
   earnings: "var(--chart-3)",
+  profit: "var(--chart-7)",
 } as const;
 
 /** Axes and gridlines are recessive by design — the data is the ink. */

@@ -4,7 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import UploadDropzone from "@/components/UploadDropzone";
 import { AlertCircleIcon } from "@/components/icons";
-import { ParsedData } from "@/lib/models";
+import { Costs, ParsedData } from "@/lib/models";
 import { parseFile } from "@/lib/importers";
 
 // The dashboard pulls in Recharts (~470 KB). Nobody sees a chart until they
@@ -20,6 +20,11 @@ const Dashboard = dynamic(() => import("@/components/Dashboard"), {
   ),
 });
 
+const NO_COSTS: Costs = { monthlyFixed: 0, perStay: 0 };
+
+/** Plausible costs for the example beach house, so the demo shows profit straight away. */
+const SAMPLE_COSTS: Costs = { monthlyFixed: 2200, perStay: 120 };
+
 const SAMPLE_FILES = ["/samples/sample-reservations.csv", "/samples/sample-earnings.csv"];
 
 export default function Home() {
@@ -28,6 +33,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [addingMore, setAddingMore] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
+  // Lives here, not in the dashboard, so "Add more files" doesn't wipe it.
+  const [costs, setCosts] = useState<Costs>(NO_COSTS);
 
   async function ingest(files: File[], demo = false) {
     setLoading(true);
@@ -46,6 +53,7 @@ export default function Home() {
       }
       setData(combined);
       setIsDemo(demo);
+      if (demo) setCosts(SAMPLE_COSTS);
       setAddingMore(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -83,6 +91,7 @@ export default function Home() {
     setError(null);
     setAddingMore(false);
     setIsDemo(false);
+    setCosts(NO_COSTS);
   }
 
   function handleAddMore() {
@@ -100,6 +109,8 @@ export default function Home() {
     return (
       <Dashboard
         data={data}
+        costs={costs}
+        onCostsChange={setCosts}
         onReset={handleReset}
         onAddMore={handleAddMore}
         disableAddMore={hasBothFiles}
@@ -113,10 +124,10 @@ export default function Home() {
       <div className="max-w-xl w-full">
         <div className="text-center mb-s6">
           <h1 className="text-3xl font-semibold tracking-tight mb-s2">HostStats</h1>
-          <p className="text-lg text-ink-soft">See how your Airbnb is doing — no account needed.</p>
+          <p className="text-lg text-ink-soft">See what your Airbnb really earns — no account needed.</p>
           <p className="text-sm text-slate mt-s2">
-            Upload your Airbnb CSV exports and instantly get your stats. Everything stays on your
-            device.
+            Upload your Airbnb exports to see profit after costs, the occupancy you need to break
+            even, and the gap nights you&rsquo;re losing. Everything stays on your device.
           </p>
         </div>
 

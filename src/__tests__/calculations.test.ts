@@ -6,6 +6,11 @@ import {
   totalRevenue,
   totalBookedNights,
   avgOccupancyPct,
+  calcMonthlyIncome,
+  incomePerNight,
+  calcMonthlyProfit,
+  calcBreakEven,
+  calcGapNights,
 } from "@/lib/calculations";
 
 function makeReservation(
@@ -112,5 +117,206 @@ describe("avgOccupancyPct", () => {
 
   it("returns 0 for empty array", () => {
     expect(avgOccupancyPct([])).toBe(0);
+  });
+});
+
+// Local-midnight dates, the way the importers build them.
+function local(y: number, m: number, d: number): Date {
+  return new Date(y, m - 1, d);
+}
+
+function stay(
+  id: string,
+  checkIn: Date,
+  checkOut: Date,
+  opts: { status?: string; payout?: number; listing?: string } = {}
+): Reservation {
+  return {
+    id,
+    status: opts.status ?? "accepted",
+    checkIn,
+    checkOut,
+    nights: Math.round((checkOut.getTime() - checkIn.getTime()) / 86_400_000),
+    payoutAmount: opts.payout,
+    listingName: opts.listing,
+  };
+}
+
+describe("calcMonthlyOccupancy with empty months", () => {
+  const spread = [
+    stay("a", local(2024, 1, 1), local(2024, 1, 11)), // 10 nights Jan
+    stay("b", local(2024, 3, 1), local(2024, 3, 11)), // 10 nights Mar
+  ];
+
+  it("includes months in between with no bookings", () => {
+    const result = calcMonthlyOccupancy(spread);
+    expect(result.map((m) => m.month)).toEqual(["2024-01", "2024-02", "2024-03"]);
+    expect(result[1].bookedNights).toBe(0);
+    expect(result[1].occupancyPct).toBe(0);
+  });
+
+  it("counts the empty month in the average", () => {
+    // Jan 32%, Feb 0%, Mar 32% -> 21%, not 32%.
+    expect(avgOccupancyPct(calcMonthlyOccupancy(spread))).toBe(21);
+  });
+
+  it("rolls over the year boundary", () => {
+    const result = calcMonthlyOccupancy([
+      stay("a", local(2024, 11, 1), local(2024, 11, 3)),
+      stay("b", local(2025, 2, 1), local(2025, 2, 3)),
+    ]);
+    expect(result.map((m) => m.month)).toEqual(["2024-11", "2024-12", "2025-01", "2025-02"]);
+  });
+});
+
+describe("calcMonthlyIncome", () => {
+  it("uses the earnings export when there is one", () => {
+    const income = calcMonthlyIncome(RESERVATIONS, PAYOUTS);
+    expect(income.get("2024-01")).toBe(630);
+  });
+
+  it("otherwise spreads reservation payouts across the nights of each stay", () => {
+    // 4 nights at $100, two in Jan and two in Feb.
+    const income = calcMonthlyIncome(
+      [stay("a", local(2024, 1, 30), local(2024, 2, 3), { payout: 400 })],
+      []
+    );
+    expect(income.get("2024-01")).toBe(200);
+    expect(income.get("2024-02")).toBe(200);
+  });
+});
+
+describe("incomePerNight", () => {
+  it("divides earnings by booked nights", () => {
+    expect(incomePerNight(RESERVATIONS, PAYOUTS)).toBe(106); // 1060 / 10
+  });
+
+  it("falls back to reservation payouts", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 3), { payout: 300 }),
+      stay("b", local(2024, 1, 5), local(2024, 1, 7), { payout: 100 }),
+      stay("c", local(2024, 1, 9), local(2024, 1, 11), { status: "cancelled", payout: 999 }),
+    ];
+    expect(incomePerNight(rs, [])).toBe(100);
+  });
+
+  it("is 0 with no money data", () => {
+    expect(incomePerNight([stay("a", local(2024, 1, 1), local(2024, 1, 3))], [])).toBe(0);
+  });
+});
+
+describe("calcMonthlyProfit", () => {
+  it("charges fixed costs every month and per-stay costs on check-in month", () => {
+    const result = calcMonthlyProfit(RESERVATIONS, PAYOUTS, { monthlyFixed: 200, perStay: 50 });
+    expect(result.map((m) => m.month)).toEqual(["2024-01", "2024-02"]);
+    // Jan: 630 in, 200 + 2 stays * 50 out (the cancelled one is free).
+    expect(result[0]).toMatchObject({ income: 630, costs: 300, profit: 330 });
+    // Feb: 430 in, 200 + 1 * 50 out.
+    expect(result[1]).toMatchObject({ income: 430, costs: 250, profit: 180 });
+  });
+
+  it("shows an empty month as a loss of the fixed costs", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 3), { payout: 300 }),
+      stay("b", local(2024, 3, 1), local(2024, 3, 3), { payout: 300 }),
+    ];
+    const result = calcMonthlyProfit(rs, [], { monthlyFixed: 1000, perStay: 0 });
+    expect(result[1]).toMatchObject({ month: "2024-02", income: 0, profit: -1000 });
+  });
+});
+
+describe("calcBreakEven", () => {
+  it("works out the nights a month that cover fixed costs", () => {
+    // $106 a night, average stay 3.33 nights, $50 a stay -> $91 a night left.
+    const be = calcBreakEven(RESERVATIONS, PAYOUTS, { monthlyFixed: 900, perStay: 50 });
+    expect(be.incomePerNight).toBe(106);
+    expect(be.contributionPerNight).toBeCloseTo(91);
+    expect(be.nightsPerMonth).toBe(10); // ceil(900 / 91)
+    expect(be.occupancyPct).toBe(33);
+    expect(be.actualNightsPerMonth).toBe(5); // 10 nights over 2 months
+  });
+
+  it("needs no nights when there are no fixed costs", () => {
+    expect(
+      calcBreakEven(RESERVATIONS, PAYOUTS, { monthlyFixed: 0, perStay: 0 }).nightsPerMonth
+    ).toBe(0);
+  });
+
+  it("is null when every stay loses money", () => {
+    const be = calcBreakEven(RESERVATIONS, PAYOUTS, { monthlyFixed: 500, perStay: 1000 });
+    expect(be.nightsPerMonth).toBeNull();
+    expect(be.occupancyPct).toBeNull();
+  });
+});
+
+describe("calcGapNights", () => {
+  const TODAY = local(2024, 6, 1);
+
+  it("finds 1–2 night gaps and ignores back-to-back and long gaps", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 3)),
+      stay("b", local(2024, 1, 3), local(2024, 1, 5)), // back to back
+      stay("c", local(2024, 1, 6), local(2024, 1, 8)), // 1-night gap
+      stay("d", local(2024, 1, 10), local(2024, 1, 12)), // 2-night gap
+      stay("e", local(2024, 1, 20), local(2024, 1, 22)), // 8-night gap
+    ];
+    const report = calcGapNights(rs, 100, TODAY);
+    expect(report.gaps.map((g) => g.nights)).toEqual([1, 2]);
+    expect(report.gaps[0].start).toEqual(local(2024, 1, 5));
+    expect(report.pastNights).toBe(3);
+    expect(report.pastValue).toBe(300);
+  });
+
+  it("counts longer gaps when the listing never takes stays that short", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 5)), // 4 nights
+      stay("b", local(2024, 1, 8), local(2024, 1, 12)), // 3-night gap, 4 nights
+      stay("c", local(2024, 1, 16), local(2024, 1, 20)), // 4-night gap
+    ];
+    const report = calcGapNights(rs, 100, TODAY);
+    expect(report.shortestStay).toBe(4);
+    expect(report.maxGapNights).toBe(3);
+    expect(report.gaps.map((g) => g.nights)).toEqual([3]);
+  });
+
+  it("ignores cancelled stays", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 3)),
+      stay("x", local(2024, 1, 3), local(2024, 1, 4), { status: "cancelled" }),
+      stay("b", local(2024, 1, 4), local(2024, 1, 6)),
+    ];
+    expect(calcGapNights(rs, 100, TODAY).gaps).toHaveLength(1);
+  });
+
+  it("keeps each listing's calendar separate", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 3), { listing: "Cabin" }),
+      stay("b", local(2024, 1, 4), local(2024, 1, 6), { listing: "Loft" }),
+      stay("c", local(2024, 1, 10), local(2024, 1, 12), { listing: "Cabin" }),
+    ];
+    expect(calcGapNights(rs, 100, TODAY).gaps).toHaveLength(0);
+  });
+
+  it("does not count a gap inside an overlapping stay", () => {
+    const rs = [
+      stay("a", local(2024, 1, 1), local(2024, 1, 10)),
+      stay("b", local(2024, 1, 2), local(2024, 1, 4)),
+      stay("c", local(2024, 1, 10), local(2024, 1, 12)),
+    ];
+    expect(calcGapNights(rs, 100, TODAY).gaps).toHaveLength(0);
+  });
+
+  it("splits gaps into lost and still sellable", () => {
+    const rs = [
+      stay("a", local(2024, 5, 1), local(2024, 5, 3)),
+      stay("b", local(2024, 5, 4), local(2024, 5, 6)), // past gap
+      stay("c", local(2024, 6, 10), local(2024, 6, 12)),
+      stay("d", local(2024, 6, 14), local(2024, 6, 16)), // upcoming gap
+    ];
+    const report = calcGapNights(rs, 100, TODAY);
+    expect(report.pastNights).toBe(1);
+    expect(report.upcomingNights).toBe(2);
+    expect(report.upcomingValue).toBe(200);
+    expect(report.gaps[1].upcoming).toBe(true);
   });
 });

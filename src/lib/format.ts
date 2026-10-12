@@ -43,3 +43,20 @@ export function formatMoneyAxis(value: number): string {
 export function formatCount(value: number): string {
   return plain.format(value);
 }
+
+const shortDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
+const shortDateYear = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+/** The empty nights of a gap: "Apr 15, 2024" or "Mar 11 – Mar 12, 2024". */
+export function formatNightRange(start: Date, nights: number): string {
+  if (nights <= 1) return shortDateYear.format(start);
+  const last = new Date(start);
+  last.setDate(last.getDate() + nights - 1);
+  return last.getFullYear() === start.getFullYear()
+    ? `${shortDate.format(start)} – ${shortDateYear.format(last)}`
+    : `${shortDateYear.format(start)} – ${shortDateYear.format(last)}`;
+}

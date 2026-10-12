@@ -84,3 +84,13 @@ export function ResetIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+/** All good. */
+export function CheckCircleIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8.5 12.5 2.5 2.5 4.5-5" />
+    </svg>
+  );
+}
