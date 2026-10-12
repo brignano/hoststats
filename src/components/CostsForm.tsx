@@ -5,6 +5,9 @@ import { Costs } from "@/lib/models";
 interface Props {
   costs: Costs;
   onChange: (costs: Costs) => void;
+  /** Whether the costs are saved on this device. Omit to hide the option (the demo). */
+  remember?: boolean;
+  onRememberChange?: (remember: boolean) => void;
 }
 
 const inputClass =
@@ -61,15 +64,16 @@ function MoneyField({
 /**
  * The one thing Airbnb can't know: what the place costs to run.
  *
- * Held in React state only. The privacy policy promises nothing is written
- * to disk, so this is not saved to localStorage either.
+ * Held in React state unless the host opts in to keeping them on this
+ * device (see lib/savedCosts). The privacy policy describes both.
  */
-export default function CostsForm({ costs, onChange }: Props) {
+export default function CostsForm({ costs, onChange, remember, onRememberChange }: Props) {
   return (
     <div className="bg-card rounded border border-line shadow-1 p-s5">
       <h3 className="text-base font-medium text-ink mb-s1">Your costs</h3>
       <p className="text-xs text-slate mb-s4">
-        Airbnb shows payouts, not profit. Rough numbers are fine. They stay in this tab.
+        Airbnb shows payouts, not profit. Rough numbers are fine.
+        {!remember && " They stay in this tab."}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-s4">
         <MoneyField
@@ -87,6 +91,22 @@ export default function CostsForm({ costs, onChange }: Props) {
           onChange={(perStay) => onChange({ ...costs, perStay })}
         />
       </div>
+      {remember !== undefined && onRememberChange && (
+        <label className="mt-s4 flex items-start gap-s2 text-sm text-ink-soft cursor-pointer">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => onRememberChange(e.target.checked)}
+            className="mt-[3px] h-4 w-4 accent-[var(--i)]"
+          />
+          <span>
+            Remember my costs on this device
+            <span className="block text-xs text-slate">
+              Saved in this browser only — never sent anywhere. Untick to delete them.
+            </span>
+          </span>
+        </label>
+      )}
     </div>
   );
 }
