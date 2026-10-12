@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@brignano/design": "git+https://github.com/brignano/design.git#29b86e8087707249ac174641be1b7bc8af34b431",
-    "next": "16.3.2",
+    "next": "16.3.8",
     "papaparse": "^5.4.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -37,7 +37,7 @@
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.3.8",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.5.23",
