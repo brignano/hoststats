@@ -102,3 +102,34 @@ export interface GapReport {
   upcomingNights: number;
   upcomingValue: number;
 }
+
+/** One calendar year, in the shape a US host needs at tax time. */
+export interface TaxYear {
+  year: number;
+  /** Payouts received in the year (Schedule E line 3, "Rents received"). */
+  rentsReceived: number;
+  /** "earnings" = exact payout dates; "reservations" = estimated from stay payouts. */
+  incomeSource: "earnings" | "reservations" | "none";
+  /** Booked nights falling in the year (Schedule E line 2, "Fair rental days"). */
+  rentalDays: number;
+  /** Stays that checked in during the year. */
+  stays: number;
+  /** Average nights per stay that checked in during the year. */
+  avgStay: number;
+  /** From the host's own cost estimates; null when none were entered. */
+  estimatedExpenses: number | null;
+  /** The year isn't over yet. */
+  inProgress: boolean;
+  /** Distinct listings with stays in the year. */
+  listings: number;
+}
+
+export interface TaxStayRow {
+  id: string;
+  listingName?: string;
+  checkIn: Date;
+  checkOut: Date;
+  /** Nights of this stay inside the year — a New Year stay is split. */
+  nightsInYear: number;
+  payoutAmount?: number;
+}

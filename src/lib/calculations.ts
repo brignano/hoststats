@@ -38,7 +38,7 @@ function daysInMonth(year: number, month: number): number {
 }
 
 /** Enumerate every night of a stay (check-in to check-out, exclusive of check-out) */
-function stayNights(checkIn: Date, checkOut: Date): Date[] {
+export function stayNights(checkIn: Date, checkOut: Date): Date[] {
   const nights: Date[] = [];
   const cur = new Date(checkIn);
   while (cur < checkOut) {
@@ -70,7 +70,7 @@ function daysBetween(a: Date, b: Date): number {
 }
 
 /** Only count reservations that are not explicitly cancelled */
-function isActive(r: Reservation): boolean {
+export function isActive(r: Reservation): boolean {
   const s = r.status.toLowerCase();
   return !s.includes("cancel");
 }
