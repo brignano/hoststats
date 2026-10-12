@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { LeadTimes, PaceMonth } from "@/lib/models";
 import { formatCount } from "@/lib/format";
 import { pricingDeadline } from "@/lib/pace";
@@ -28,7 +29,7 @@ function Meter({
 }) {
   const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
   return (
-    <div className="flex items-center gap-s2 text-xs text-slate">
+    <div className="flex items-center gap-s2 text-xs text-muted">
       <span className="w-24 shrink-0">{label}</span>
       <span className="relative flex-1 h-2 rounded-sm bg-surface-hover overflow-hidden">
         <span
@@ -50,28 +51,28 @@ function PaceRows({ pace }: { pace: PaceMonth[] }) {
         <div key={m.month}>
           <div className="flex items-baseline justify-between gap-s2 mb-s2">
             <h3 className="text-sm font-medium text-ink">{m.label}</h3>
-            <span className="text-xs text-slate font-mono tabular-nums">
-              {Math.round((m.nightsNow / m.daysInMonth) * 100)}% booked
+            <span className="text-xs text-muted font-mono tabular-nums">
+              {Math.round((m.nightsNow / (m.daysInMonth * m.listings)) * 100)}% booked
             </span>
           </div>
           <div className="space-y-s1">
             <Meter
               value={m.nightsNow}
-              max={m.daysInMonth}
+              max={m.daysInMonth * m.listings}
               label="Booked now"
               color="var(--chart-1)"
             />
             {m.lastYearSamePoint !== null && (
               <Meter
                 value={m.lastYearSamePoint}
-                max={m.daysInMonth}
+                max={m.daysInMonth * m.listings}
                 label="Last year by now"
                 color="var(--slate)"
               />
             )}
           </div>
           {m.lastYearFinal !== null && (
-            <p className="text-xs text-slate mt-s1">
+            <p className="text-xs text-muted mt-s1">
               Last year this month finished at {nights(m.lastYearFinal)}.
             </p>
           )}
@@ -142,7 +143,7 @@ function PaceVerdict({ pace }: { pace: PaceMonth[] }) {
  * how far ahead do guests book? Airbnb's dashboards look backwards; this is
  * what decides when to change prices.
  */
-export default function Pace({ pace, lead, asOf }: Props) {
+function Pace({ pace, lead, asOf }: Props) {
   const deadline = lead ? pricingDeadline(lead, asOf) : null;
 
   return (
@@ -195,3 +196,7 @@ export default function Pace({ pace, lead, asOf }: Props) {
     </div>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(Pace);

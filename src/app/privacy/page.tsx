@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
     <main className="min-h-screen px-s4 py-s7">
       <article className="max-w-measure mx-auto bg-card rounded-lg border border-line shadow-1 p-s6 sm:p-s7">
         <h1 className="text-3xl font-semibold tracking-tight text-ink mb-s2">Privacy Policy</h1>
-        <p className="text-sm text-slate mb-s6">
+        <p className="text-sm text-muted mb-s6">
           For <strong>HostStats</strong>. Last updated 12 October 2026.
         </p>
 

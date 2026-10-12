@@ -1,5 +1,5 @@
 import { parseAirbnbCalendarUrl } from "@/lib/calendarUrl";
-import { isICal, parseICal } from "@/lib/importers/ical";
+import { isICal, parseICal, unescapeText } from "@/lib/importers/ical";
 import { mergeParsed } from "@/lib/merge";
 import { calcGapNights } from "@/lib/calculations";
 import { handleCalendarRequest } from "../../worker/calendarProxy";
@@ -85,6 +85,12 @@ describe("parseICal", () => {
     expect(blocked[0].end).toEqual(new Date(2026, 11, 1));
   });
 
+  it("unescapes iCal text in one pass", () => {
+    expect(unescapeText("a\\,b\\;c\\nd")).toBe("a,b;c\nd");
+    // An escaped backslash followed by n is a backslash and an n, not a newline.
+    expect(unescapeText("C:\\\\new")).toBe("C:\\new");
+  });
+
   it("throws on something that isn't a calendar", () => {
     expect(() => parseICal("<html>")).toThrow(/calendar/);
   });
@@ -114,10 +120,57 @@ describe("mergeParsed", () => {
     expect(merged.reservations).toHaveLength(2);
   });
 
-  it("files unnamed calendar stays under the only listing loaded", () => {
-    const merged = mergeParsed(csv, { payouts: [], ...parseICal(FEED) });
+  it("files a calendar under a listing it shares bookings with, blocks included", () => {
+    const merged = mergeParsed(csv, { payouts: [], ...parseICal(FEED, undefined, "feed-1") });
     expect(merged.reservations.every((r) => r.listingName === "Beach House")).toBe(true);
     expect(merged.blocked?.[0].listingName).toBe("Beach House");
+    // Same result when the calendar is loaded first.
+    const reversed = mergeParsed({ payouts: [], ...parseICal(FEED, undefined, "feed-1") }, csv);
+    expect(reversed.reservations.every((r) => r.listingName === "Beach House")).toBe(true);
+  });
+
+  it("leaves another property's calendar unnamed instead of guessing", () => {
+    const otherFeed = FEED.replace(/HMABCDEF12/g, "HMOTHER001");
+    const merged = mergeParsed(csv, { payouts: [], ...parseICal(otherFeed, undefined, "feed-2") });
+    const other = merged.reservations.filter((r) => r.calendarId === "feed-2");
+    expect(other).toHaveLength(2);
+    expect(other.every((r) => r.listingName === undefined)).toBe(true);
+  });
+
+  it("keeps the CSV's status and booked date when the calendar copy came first", () => {
+    const cancelled = {
+      reservations: [
+        {
+          ...csv.reservations[0],
+          status: "Canceled by guest",
+          payoutAmount: undefined,
+          bookedAt: new Date(2026, 7, 1),
+          source: "csv" as const,
+        },
+      ],
+      payouts: [],
+    };
+    const merged = mergeParsed({ payouts: [], ...parseICal(FEED, undefined, "feed-1") }, cancelled);
+    const stay = merged.reservations.find((r) => r.id === "HMABCDEF12")!;
+    expect(stay.status).toBe("Canceled by guest");
+    expect(stay.bookedAt).toEqual(new Date(2026, 7, 1));
+    expect(stay.calendarId).toBe("feed-1");
+  });
+
+  it("doesn't double payouts when the same earnings rows are added again", () => {
+    const earnings = {
+      reservations: [],
+      payouts: [
+        { date: new Date(2026, 0, 5), type: "Payout", amount: 100, confirmationCode: "A" },
+        { date: new Date(2026, 0, 5), type: "Payout", amount: 100, confirmationCode: "A" },
+        { date: new Date(2026, 0, 9), type: "Payout", amount: 50, confirmationCode: "B" },
+      ],
+    };
+    // Two genuinely identical lines in one file both count...
+    const once = mergeParsed({ reservations: [], payouts: [] }, earnings);
+    expect(once.payouts).toHaveLength(3);
+    // ...and re-adding the same file adds nothing.
+    expect(mergeParsed(once, earnings).payouts).toHaveLength(3);
   });
 
   it("prefers the copy with a payout whichever order they arrive in", () => {

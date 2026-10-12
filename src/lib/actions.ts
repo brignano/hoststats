@@ -131,7 +131,7 @@ export function buildActions(input: ActionInputs): Action[] {
       href: "#profit",
       linkLabel: "Add costs",
     });
-  } else if (input.hasCosts && input.hasReservations) {
+  } else if (input.hasCosts && input.hasReservations && input.hasIncome) {
     if (breakEven.nightsPerMonth === null) {
       actions.push({
         id: "break-even-never",

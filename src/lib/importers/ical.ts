@@ -21,12 +21,9 @@ function unfold(text: string): string[] {
     .split("\n");
 }
 
-function unescape(value: string): string {
-  return value
-    .replace(/\\n/gi, "\n")
-    .replace(/\\,/g, ",")
-    .replace(/\;/g, ";")
-    .replace(/\\\\/g, "\\");
+/** RFC 5545 text escapes, in one pass so "\\n" stays a backslash and an n. */
+export function unescapeText(value: string): string {
+  return value.replace(/\\([\\;,nN])/g, (_, c: string) => (c === "n" || c === "N" ? "\n" : c));
 }
 
 function readEvents(text: string): RawEvent[] {
@@ -42,7 +39,7 @@ function readEvents(text: string): RawEvent[] {
       if (colon < 0) continue;
       // "DTSTART;VALUE=DATE" -> "DTSTART"; parameters don't matter here.
       const name = line.slice(0, colon).split(";")[0].toUpperCase();
-      current[name] = unescape(line.slice(colon + 1));
+      current[name] = unescapeText(line.slice(colon + 1));
     }
   }
   return events;
@@ -69,7 +66,9 @@ export function isICal(text: string): boolean {
 
 export function parseICal(
   text: string,
-  listingName?: string
+  listingName?: string,
+  /** Identifies the feed (its listing id, or the file name) for naming later. */
+  calendarId?: string
 ): { reservations: Reservation[]; blocked: BlockedSpan[] } {
   if (!isICal(text)) throw new Error("That isn't a calendar file.");
 
@@ -83,7 +82,7 @@ export function parseICal(
     const summary = e.SUMMARY ?? "";
 
     if (isBlock(summary)) {
-      blocked.push({ start, end, listingName });
+      blocked.push({ start, end, listingName, calendarId });
       continue;
     }
 
@@ -94,6 +93,8 @@ export function parseICal(
       checkOut: end,
       nights: Math.round((end.getTime() - start.getTime()) / 86_400_000),
       listingName,
+      source: "calendar",
+      calendarId,
     });
   }
 

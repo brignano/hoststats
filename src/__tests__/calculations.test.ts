@@ -236,6 +236,16 @@ describe("calcBreakEven", () => {
     expect(be.actualNightsPerMonth).toBe(5); // 10 nights over 2 months
   });
 
+  it("averages over the same months the occupancy chart shows, empty ones included", () => {
+    const rs = [
+      stay("a", local(2024, 1, 30), local(2024, 2, 2)), // spans Jan–Feb
+      stay("b", local(2024, 4, 10), local(2024, 4, 13)), // Mar is empty
+    ];
+    const be = calcBreakEven(rs, [], { monthlyFixed: 0, perStay: 0 });
+    expect(calcMonthlyOccupancy(rs)).toHaveLength(4);
+    expect(be.actualNightsPerMonth).toBe(1.5); // 6 nights / 4 months
+  });
+
   it("needs no nights when there are no fixed costs", () => {
     expect(
       calcBreakEven(RESERVATIONS, PAYOUTS, { monthlyFixed: 0, perStay: 0 }).nightsPerMonth

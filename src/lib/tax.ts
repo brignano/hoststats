@@ -9,6 +9,49 @@ import { calcMonthlyProfit, isActive, stayNights } from "./calculations";
  * costs come from calcMonthlyProfit so the numbers here always agree with the
  * profit chart.
  */
+interface YearNights {
+  stays: number;
+  stayNights: number;
+  rentalDays: number;
+  listings: Set<string>;
+}
+
+// Walking every night of every stay is the slow part, and it doesn't depend
+// on costs. Cache it per reservations array (state arrays are replaced, never
+// mutated) so typing in the costs form doesn't redo it on each keystroke.
+const nightsCache = new WeakMap<Reservation[], Map<number, YearNights>>();
+
+function countNights(reservations: Reservation[]): Map<number, YearNights> {
+  const cached = nightsCache.get(reservations);
+  if (cached) return cached;
+
+  const byYear = new Map<number, YearNights>();
+  const year = (y: number) => {
+    if (!byYear.has(y))
+      byYear.set(y, { stays: 0, stayNights: 0, rentalDays: 0, listings: new Set() });
+    return byYear.get(y)!;
+  };
+  // Count each calendar night once per listing, so overlapping imports of
+  // the same stay can't inflate rental days.
+  const nightsSeen = new Set<string>();
+  for (const r of reservations) {
+    if (!isActive(r)) continue;
+    const start = year(r.checkIn.getFullYear());
+    start.stays += 1;
+    start.stayNights += r.nights;
+    for (const night of stayNights(r.checkIn, r.checkOut)) {
+      const key = `${r.listingName ?? ""}|${night.getFullYear()}-${night.getMonth()}-${night.getDate()}`;
+      if (nightsSeen.has(key)) continue;
+      nightsSeen.add(key);
+      const y = year(night.getFullYear());
+      y.rentalDays += 1;
+      y.listings.add(r.listingName ?? "");
+    }
+  }
+  nightsCache.set(reservations, byYear);
+  return byYear;
+}
+
 export function calcTaxYears(
   reservations: Reservation[],
   payouts: Payout[],
@@ -22,6 +65,7 @@ export function calcTaxYears(
     payouts.length > 0 ? "earnings" : hasStayPayouts ? "reservations" : "none";
 
   const years = new Map<number, TaxYear>();
+  const stayNightsByYear = new Map<number, number>();
   const listingsByYear = new Map<number, Set<string>>();
   const get = (year: number): TaxYear => {
     if (!years.has(year)) {
@@ -47,22 +91,13 @@ export function calcTaxYears(
     if (y.estimatedExpenses !== null) y.estimatedExpenses += m.costs;
   }
 
-  // Count each calendar night once per listing, so overlapping imports of
-  // the same stay can't inflate rental days.
-  const nightsSeen = new Set<string>();
-  const stayNightsByYear = new Map<number, number>();
-  for (const r of reservations) {
-    if (!isActive(r)) continue;
-    const startYear = get(r.checkIn.getFullYear());
-    startYear.stays += 1;
-    stayNightsByYear.set(startYear.year, (stayNightsByYear.get(startYear.year) ?? 0) + r.nights);
-    for (const night of stayNights(r.checkIn, r.checkOut)) {
-      const key = `${r.listingName ?? ""}|${night.getFullYear()}-${night.getMonth()}-${night.getDate()}`;
-      if (nightsSeen.has(key)) continue;
-      nightsSeen.add(key);
-      get(night.getFullYear()).rentalDays += 1;
-      listingsByYear.get(night.getFullYear())!.add(r.listingName ?? "");
-    }
+  const nights = countNights(reservations);
+  for (const [year, n] of nights) {
+    const y = get(year);
+    y.stays = n.stays;
+    y.rentalDays = n.rentalDays;
+    stayNightsByYear.set(year, n.stayNights);
+    listingsByYear.set(year, n.listings);
   }
 
   return [...years.values()]
@@ -80,8 +115,10 @@ export function calcTaxYears(
 
 /** The stays behind one year's numbers, for the downloadable detail. */
 export function taxStayRows(reservations: Reservation[], year: number): TaxStayRow[] {
+  const yearStart = new Date(year, 0, 1);
+  const yearEnd = new Date(year + 1, 0, 1);
   return reservations
-    .filter(isActive)
+    .filter((r) => isActive(r) && r.checkIn < yearEnd && r.checkOut > yearStart)
     .map((r) => ({
       id: r.id,
       listingName: r.listingName,

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { MonthlyOccupancy } from "@/lib/models";
 import { CHART_SERIES, axisTick, gridStroke, tooltipStyle } from "./chartTheme";
@@ -8,7 +9,7 @@ interface Props {
   data: MonthlyOccupancy[];
 }
 
-export default function OccupancyChart({ data }: Props) {
+function OccupancyChart({ data }: Props) {
   return (
     <div className="bg-card rounded border border-line shadow-1 p-s5">
       <h3 className="text-base font-medium text-ink mb-s4">Occupancy % by Month</h3>
@@ -29,3 +30,7 @@ export default function OccupancyChart({ data }: Props) {
     </div>
   );
 }
+
+// Memoised: the dashboard re-renders on every keystroke in the costs form,
+// and this only needs to redraw when its own data changes.
+export default memo(OccupancyChart);

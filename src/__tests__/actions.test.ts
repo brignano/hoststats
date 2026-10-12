@@ -22,6 +22,7 @@ function month(label: string, now: number, then: number | null, final: number | 
     month: label,
     label,
     daysInMonth: 30,
+    listings: 1,
     nightsNow: now,
     lastYearSamePoint: then,
     lastYearFinal: final,
