@@ -5,22 +5,88 @@
    HostStats is a TOOL-tier surface (like `life` and `homelab`), so it does not
    set `tier-marketing` on <html>: compact type scale, no display face, no
    scroll motion. */
+@import "tailwindcss";
 @import "@brignano/design/tokens.css";
 @import "@brignano/design/tokens.chart.css";
+/* The design system's Tailwind v4 bridge: utilities emit `var(--token)`, so
+   colours follow the light/dark switch instead of freezing one theme. */
+@import "@brignano/design/tailwind.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* What HostStats uses beyond the shared bridge. `inline` for the same reason
+   as the bridge: utilities reference the token, never a build-time copy. */
+@theme inline {
+  /* Small secondary text. --slate is 3.44:1 on light surfaces, which
+     tokens.css reserves for large text and UI marks (DESIGN.md §9 wants
+     4.5:1 for body text); --n-600 is 5.28:1 there and lighter, so higher
+     contrast, in dark mode. */
+  --color-muted: var(--n-600);
+  --color-line-soft: var(--line-soft);
+  --color-interactive-line: var(--i-line);
+  --color-interactive-disabled-bg: var(--i-disabled-bg);
+  --color-interactive-disabled-ink: var(--i-disabled-ink);
+  --color-success-line: var(--success-line);
+  --color-attention-line: var(--attention-line);
+  --color-danger-line: var(--danger-line);
+
+  /* `rounded` with no size. */
+  --radius: var(--radius);
+
+  /* Tool-tier scale: compact, because scanning beats reading. Clearing the
+     namespace also drops Tailwind's paired line-heights, which the tokens
+     don't set. */
+  --text-*: initial;
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+
+  --spacing-s1: var(--s1);
+  --spacing-s2: var(--s2);
+  --spacing-s3: var(--s3);
+  --spacing-s4: var(--s4);
+  --spacing-s5: var(--s5);
+  --spacing-s6: var(--s6);
+  --spacing-s7: var(--s7);
+  --spacing-s8: var(--s8);
+  --spacing-s9: var(--s9);
+
+  --container-measure: var(--measure);
+
+  --transition-duration-fast: 150ms;
+  --transition-duration-slow: 600ms;
+  --default-transition-duration: 250ms;
+}
+
+/* next/font loads Geist and IBM Plex Mono and exposes them as
+   --font-geist / --font-plex-mono. The token keeps naming the stack; this
+   just supplies the faces it asks for, which the design system notes are not
+   yet installed on every surface. Unlayered on purpose: tokens.css is
+   unlayered, so an override inside a layer would lose to it. */
+:root {
+  --sans:
+    var(--font-geist), "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+}
 
 @layer base {
-  /* next/font loads Geist and IBM Plex Mono and exposes them as
-     --font-geist / --font-plex-mono. The token keeps naming the stack; this
-     just supplies the faces it asks for, which the design system notes are
-     not yet installed on every surface. */
-  :root {
-    --sans:
-      var(--font-geist), "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+  /* Tailwind 4 borders default to currentColor. A bare `border` should draw
+     the theme's line, in both themes — DESIGN.md §11. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--line);
+  }
+
+  /* Tailwind 4 dropped the pointer cursor from buttons; keep it. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   html {
@@ -35,7 +101,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Preflight hardcodes gray-400 here, per engine. Nothing in this app
+  /* Preflight's placeholder colour is not a token. Nothing in this app
      renders a text input today, but leaving a frozen literal in place is how
      a theme bug gets introduced later by someone adding one. */
   ::placeholder,
