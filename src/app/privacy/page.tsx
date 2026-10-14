@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy – HostStats",
   description:
     "HostStats processes your Airbnb CSV exports entirely in your browser. Nothing is uploaded, stored, or shared.",
+  alternates: { canonical: "/privacy/" },
 };
 
 /**
