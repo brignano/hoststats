@@ -37,6 +37,8 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   applicationName: "HostStats",
   manifest: "/manifest.webmanifest",
+  // Relative to metadataBase; pages with their own address override it.
+  alternates: { canonical: "/" },
   appleWebApp: {
     capable: true,
     title: "HostStats",
@@ -61,6 +63,26 @@ export const metadata: Metadata = {
   },
 };
 
+// Structured data for search results: WebSite gives Google the name to show
+// above a result, WebApplication says what the site is. A plain <script>
+// rather than next/script so it is in the exported HTML crawlers read.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: "HostStats", url: `${SITE_URL}/` },
+    {
+      "@type": "WebApplication",
+      name: "HostStats",
+      url: `${SITE_URL}/`,
+      description: DESCRIPTION,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Any",
+      browserRequirements: "Requires JavaScript",
+      image: `${SITE_URL}/og.png`,
+    },
+  ],
+};
+
 export const viewport: Viewport = {
   // The one place a literal is unavoidable: <meta name="theme-color"> is read
   // by the browser chrome before any CSS is parsed, so it cannot reference a
@@ -83,7 +105,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geist.variable} ${plexMono.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
