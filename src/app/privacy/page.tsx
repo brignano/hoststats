@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
       <article className="max-w-measure mx-auto bg-card rounded-lg border border-line shadow-1 p-s6 sm:p-s7">
         <h1 className="text-3xl font-semibold tracking-tight text-ink mb-s2">Privacy Policy</h1>
         <p className="text-sm text-muted mb-s6">
-          For <strong>HostStats</strong>. Last updated 12 October 2026.
+          For <strong>HostStats</strong>. Last updated 14 October 2026.
         </p>
 
         <div className="space-y-s5 text-ink-soft leading-relaxed">
@@ -81,22 +81,6 @@ export default function PrivacyPolicy() {
             <p>
               There are none. No analytics, no tracking pixels, no advertising identifiers, no
               third-party scripts, and no cookies set by the application.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-medium text-ink mb-s2">Signing in</h2>
-            <p>
-              This site may sit behind Cloudflare Access, which asks you to sign in before the page
-              loads. That is usually a one-time code emailed to you; it may instead be a third-party
-              provider such as Google, which tells Cloudflare your name and email address so it can
-              check you are on the guest list.
-            </p>
-            <p className="mt-s3">
-              Either way the exchange happens between Cloudflare and your email or identity
-              provider. HostStats itself does not receive, read, or store your identity, and the
-              sign-in check happens before the application runs at all. It never has access to your
-              spreadsheets.
             </p>
           </section>
 

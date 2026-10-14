@@ -10,8 +10,8 @@ path is served straight from the static files without running the Worker.
 Two separate things are set up here:
 
 1. **Hosting** — put the site on Cloudflare at your own domain.
-2. **Login** — put Cloudflare Access in front of it so only the people you
-   name can open it.
+2. **Login** (optional) — put Cloudflare Access in front of it so only the
+   people you name can open it. hoststats.brignano.io is public and skips this.
 
 They are independent. You can do (1) and leave the site public, or add (2)
 later without touching a line of code.
@@ -209,4 +209,4 @@ then attach that group to every site instead of maintaining parallel lists.
 | Zero Trust Access     | Free up to 50 users                   |
 | Bandwidth             | Free                                  |
 
-A family dashboard will not come close to any of these.
+A small personal site will not come close to any of these.

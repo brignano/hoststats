@@ -59,11 +59,6 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     images: [SOCIAL_IMAGE],
   },
-  robots: {
-    // Private family tool sitting behind Cloudflare Access — keep it unindexed.
-    index: false,
-    follow: false,
-  },
 };
 
 export const viewport: Viewport = {
