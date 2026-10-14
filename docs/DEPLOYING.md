@@ -37,30 +37,19 @@ it and confirm the page loads.
 
 ### Deploy automatically on every push
 
-`.github/workflows/deploy.yml` already does this. It needs one **variable**
-and one **secret** — they live on separate tabs under **Settings → Secrets and
-variables → Actions** in GitHub.
+Cloudflare builds and deploys the site itself (Workers Builds), connected under
+**Workers & Pages → hoststats → Settings → Builds**:
 
-| Name                    | Kind     | Where to get it                                                                              |
-| ----------------------- | -------- | -------------------------------------------------------------------------------------------- |
-| `CLOUDFLARE_ACCOUNT_ID` | Variable | It is the hex string in any Cloudflare dashboard URL: `dash.cloudflare.com/<account-id>/...` |
-| `CLOUDFLARE_API_TOKEN`  | Secret   | My Profile → API Tokens → Create Token → **Edit Cloudflare Workers** template                |
+| Setting           | Value                 |
+| ----------------- | --------------------- |
+| Production branch | `main`                |
+| Build command     | `npm run build`       |
+| Deploy command    | `npx wrangler deploy` |
 
-The account ID is not a credential — it appears in every dashboard URL and is
-useless without a token — so it belongs in Variables. That also keeps it out of
-the log masker: as a secret it renders as `***` in Wrangler output, which is
-unhelpful precisely when you are debugging a failed deploy.
-
-Name the token after what uses it, for example
-`hoststats-github-actions-deploy`, so you can revoke the right one later. Give
-each consumer its own token rather than sharing one, and set an expiry if
-offered.
-
-Pushes to `main` then build and deploy on their own.
-
-Scope the token to the **Edit Cloudflare Workers** template rather than a
-global key — it can only touch Workers, so a leak can't reach the rest of the
-account.
+A push to `main` deploys to production. Every other branch, so every pull
+request, is uploaded as a preview version, and Cloudflare comments its preview
+URL on the PR. GitHub Actions only runs the checks in `ci.yml` (lint, tests,
+browser tests); it holds no Cloudflare credentials.
 
 ### Your own domain
 
