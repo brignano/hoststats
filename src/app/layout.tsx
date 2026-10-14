@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 // The design system's --sans / --mono name these faces. next/font self-hosts
 // them at build time, so there is no runtime request to a font CDN — which
@@ -18,7 +19,6 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hoststats.brignano.io";
 const TITLE = "HostStats – What Your Airbnb Really Earns";
 const DESCRIPTION =
   "Profit after your costs, the empty nights between stays, pace against last year and tax-time totals — from your Airbnb exports, read in your browser.";
