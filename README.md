@@ -91,8 +91,8 @@ npm run deploy     # Build, then deploy to Cloudflare
 
 ## 🚀 Deploying
 
-HostStats is hosted on **Cloudflare Workers** static assets, and family access is
-gated by **Cloudflare Access** — a one-time emailed code, or Google sign-in.
+HostStats is hosted on **Cloudflare Workers** static assets and is open to
+anyone — there are no accounts.
 
 ```bash
 npx wrangler login
@@ -102,7 +102,7 @@ npm run deploy
 Pushes to `main` deploy automatically via `.github/workflows/deploy.yml` (needs
 the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets).
 
-Full walkthrough — custom domain, sign-in options, and the gotchas — is in
+Full walkthrough — custom domain, optional sign-in, and the gotchas — is in
 **[docs/DEPLOYING.md](docs/DEPLOYING.md)**.
 
 ---
@@ -150,7 +150,7 @@ src/
 
 public/samples/       # Example CSVs powering the in-app demo
 fixtures/             # Sample CSV files for testing
-docs/DEPLOYING.md     # Cloudflare hosting + Access sign-in guide
+docs/DEPLOYING.md     # Cloudflare hosting + optional Access sign-in guide
 wrangler.jsonc        # Cloudflare Workers config
 ```
 
@@ -180,10 +180,9 @@ drift either side of UTC.
 
 All CSV processing happens **locally in your browser**. No files are uploaded to any server. No analytics or tracking.
 
-The deployed instance additionally sits behind Cloudflare Access, so only
-invited family members can reach it. Access authenticates the visitor before
-the page loads — it never sees the CSVs, which are still parsed entirely
-client-side.
+The one exception is a calendar link you choose to paste: it is fetched through
+a small pass-through proxy that only fetches Airbnb calendar addresses and stores
+and logs nothing.
 
 ---
 
