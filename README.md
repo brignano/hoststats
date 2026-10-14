@@ -99,8 +99,8 @@ npx wrangler login
 npm run deploy
 ```
 
-Pushes to `main` deploy automatically via `.github/workflows/deploy.yml` (needs
-the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets).
+Pushes to `main` deploy automatically through Cloudflare's own Git integration
+(Workers Builds), and every pull request gets a preview URL.
 
 Full walkthrough — custom domain, optional sign-in, and the gotchas — is in
 **[docs/DEPLOYING.md](docs/DEPLOYING.md)**.
