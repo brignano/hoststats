@@ -44,7 +44,14 @@ export const metadata: Metadata = {
     title: "HostStats",
     statusBarStyle: "default",
   },
+  // Listed explicitly: with an `icons` object here, Next does not also link
+  // app/icon.svg, and the page shipped with no favicon at all.
   icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
     apple: "/apple-icon.png",
   },
   openGraph: {

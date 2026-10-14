@@ -103,3 +103,14 @@ test("a link that isn't an Airbnb calendar is refused before any request", async
   await expect(page.locator("form").getByRole("alert")).toContainText("Airbnb calendar link");
   expect(called).toBe(false);
 });
+
+test("every page links a favicon the browser can load", async ({ page, request }) => {
+  for (const path of ["/", "/privacy/"]) {
+    await page.goto(path);
+    const hrefs = await page
+      .locator('link[rel="icon"]')
+      .evaluateAll((links) => links.map((l) => (l as HTMLLinkElement).href));
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) expect((await request.get(href)).ok()).toBe(true);
+  }
+});
