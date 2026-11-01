@@ -12,6 +12,13 @@ import { parseFile } from "@/lib/importers";
 import { mergeParsed } from "@/lib/merge";
 import { loadAirbnbCalendar } from "@/lib/calendarFetch";
 import { clearSavedCosts, loadSavedCosts, saveCosts } from "@/lib/savedCosts";
+import {
+  clearSavedData,
+  isRemembering,
+  loadSavedData,
+  saveData,
+  setRemembering,
+} from "@/lib/savedData";
 
 // The dashboard pulls in Recharts (~470 KB). Nobody sees a chart until they
 // have uploaded something, so keep it out of the first paint entirely.
@@ -39,9 +46,18 @@ export default function Home() {
   const [isDemo, setIsDemo] = useState(false);
   // Lives here, not in the dashboard, so "Add more files" doesn't wipe it.
   const [costs, setCosts] = useState<Costs>(NO_COSTS);
-  // Opt-in "remember on this device". Read when the dashboard first opens
-  // rather than on page load, so the prerendered page never touches storage.
-  const [rememberCosts, setRememberCosts] = useState(false);
+  // One opt-in covering both the import (IndexedDB) and the costs
+  // (localStorage). It starts false so the prerendered HTML matches what the
+  // browser first renders — reading storage during render would make the two
+  // disagree, and React reports that as an error.
+  const [remember, setRemember] = useState(false);
+  // True only while the mount effect is fetching a remembered import. Opted-in
+  // visitors see one frame of the upload screen first, for the same reason.
+  const [restoring, setRestoring] = useState(false);
+  // Set when this import came back from the device rather than from a file.
+  const [restoredAt, setRestoredAt] = useState<Date | undefined>(undefined);
+  // "Not now" on the offer, for this visit only.
+  const [offerDeclined, setOfferDeclined] = useState(false);
 
   /** Add newly parsed data to what's loaded (or replace it, on a fresh start). */
   function commit(parsed: ParsedData[], demo: boolean) {
@@ -58,9 +74,13 @@ export default function Home() {
     } else if (leavingDemo || (costs.monthlyFixed === 0 && costs.perStay === 0)) {
       const saved = loadSavedCosts();
       setCosts(saved ?? NO_COSTS);
-      if (saved) setRememberCosts(true);
+      if (saved) setRemember(true);
     }
     setAddingMore(false);
+    // A fresh import replaces whatever was kept; the example data never is.
+    setRestoredAt(undefined);
+    if (demo) return;
+    if (remember) void saveData(combined);
   }
 
   async function ingest(files: File[], demo = false) {
@@ -114,17 +134,33 @@ export default function Home() {
     }
   }
 
-  // Runs once: ?demo=1 (the landing page's "See it with example data" link)
-  // opens the example dashboard without a click. The ref guards against React
-  // 18+ double-invoking effects in development.
-  const demoRequested = useRef(false);
+  // Runs once, and decides what this visit opens on. The ref guards against
+  // React double-invoking effects in development.
+  const started = useRef(false);
   useEffect(() => {
-    if (demoRequested.current) return;
-    if (!new URLSearchParams(window.location.search).has("demo")) return;
-    demoRequested.current = true;
-    void handleDemo();
-    // Drop the parameter so a reload, or a "start over", lands on the uploader.
-    window.history.replaceState(null, "", window.location.pathname);
+    if (started.current) return;
+    started.current = true;
+
+    // ?demo=1 is the landing page's "See it with example data" link. An
+    // explicit ask for the sample beats a remembered import.
+    if (new URLSearchParams(window.location.search).has("demo")) {
+      // Drop the parameter so a reload, or "start over", lands on the uploader.
+      window.history.replaceState(null, "", window.location.pathname);
+      void handleDemo();
+      return;
+    }
+
+    if (!isRemembering()) return;
+    setRemember(true);
+    setRestoring(true);
+    void loadSavedData().then((session) => {
+      if (session) {
+        setData(session.data);
+        setRestoredAt(session.savedAt);
+        setCosts(loadSavedCosts() ?? NO_COSTS);
+      }
+      setRestoring(false);
+    });
     // handleDemo is stable for this purpose: it only closes over setState.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -132,13 +168,21 @@ export default function Home() {
   function handleCostsChange(next: Costs) {
     setCosts(next);
     // The demo's numbers are never saved over a host's real ones.
-    if (rememberCosts && !isDemo) saveCosts(next);
+    if (remember && !isDemo) saveCosts(next);
   }
 
+  /** The single consent: it governs the kept import and the kept costs alike. */
   function handleRememberChange(on: boolean) {
-    setRememberCosts(on);
-    if (on) saveCosts(costs);
-    else clearSavedCosts();
+    setRemember(on);
+    setRemembering(on);
+    if (on) {
+      saveCosts(costs);
+      if (data && !isDemo) void saveData(data);
+    } else {
+      clearSavedCosts();
+      void clearSavedData();
+      setRestoredAt(undefined);
+    }
   }
 
   function handleReset() {
@@ -148,6 +192,11 @@ export default function Home() {
     setIsDemo(false);
     setCosts(NO_COSTS);
     setCalendarError(null);
+    setRestoredAt(undefined);
+    setOfferDeclined(false);
+    // Starting over forgets this import but keeps the preference, so the next
+    // one is kept too. Unticking the box is how you stop keeping anything.
+    void clearSavedData();
   }
 
   function handleAddMore() {
@@ -162,14 +211,28 @@ export default function Home() {
     setCalendarError(null);
   }
 
+  // Opted in, and the kept import is on its way up from IndexedDB.
+  if (restoring) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-s4">
+        <p className="text-lg text-muted" role="status">
+          Picking up where you left off…
+        </p>
+      </main>
+    );
+  }
+
   if (data && !addingMore) {
     return (
       <Dashboard
         data={data}
         costs={costs}
         onCostsChange={handleCostsChange}
-        rememberCosts={isDemo ? undefined : rememberCosts}
-        onRememberCostsChange={handleRememberChange}
+        remember={isDemo ? undefined : remember}
+        onRememberChange={handleRememberChange}
+        restoredAt={restoredAt}
+        offerRemember={!isDemo && !remember && !restoredAt && !offerDeclined}
+        onDeclineRemember={() => setOfferDeclined(true)}
         onReset={handleReset}
         onAddMore={handleAddMore}
         isDemo={isDemo}

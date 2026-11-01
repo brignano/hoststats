@@ -82,8 +82,11 @@ export default function Terms() {
           <section>
             <h2 className="text-lg font-medium text-ink mb-s2">Your data</h2>
             <p>
-              Your files are read in your browser and are never uploaded. The one exception is an
-              Airbnb calendar link, if you choose to paste one, which is fetched through a
+              Your files are read in your browser and are never uploaded. If you tick
+              &ldquo;Remember my data on this device&rdquo;, your import and costs are kept in that
+              browser — on your device, never on ours, and never with your guests&rsquo; names.
+              Keeping them, and deleting them, is yours to control. The one exception to all of this
+              is an Airbnb calendar link, if you choose to paste one, which is fetched through a
               pass-through proxy that stores and logs nothing. The{" "}
               <Link
                 href="/privacy/"

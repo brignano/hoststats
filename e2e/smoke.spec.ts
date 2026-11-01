@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectNoSideScroll, openDemo, watchForErrors } from "./helpers";
+import { expectNoSideScroll, openDemo, storedRecord, watchForErrors } from "./helpers";
 
 test("the product page makes its argument and asks for one thing", async ({ page }) => {
   const errors = watchForErrors(page);
@@ -144,4 +144,44 @@ test("every page links a favicon the browser can load", async ({ page, request }
     expect(hrefs.length).toBeGreaterThan(0);
     for (const href of hrefs) expect((await request.get(href)).ok()).toBe(true);
   }
+});
+
+test("an import is kept on this device only when asked, without guest names", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/app/");
+  await page.setInputFiles("input[type=file]", "e2e/fixtures/own-with-guests.csv");
+  await expect(page.getByRole("heading", { name: "What to do now" })).toBeVisible();
+
+  // Nothing is written until the host says so.
+  expect(await storedRecord(page)).toBeNull();
+
+  await page.getByRole("button", { name: "Keep it on this device" }).click();
+
+  // It survives a full reload, and says where it came from.
+  await page.reload();
+  await expect(page.getByText("Picked up where you left off")).toBeVisible();
+  await expect(page.getByText("Total Bookings").locator("..")).toHaveText(
+    /^\s*Total Bookings\s*2\s*$/i
+  );
+
+  // The most personal column in the file never reached the disk.
+  const record = await storedRecord(page);
+  expect(JSON.stringify(record)).not.toContain("Scully");
+  expect(JSON.stringify(record)).not.toContain("Mulder");
+  // ...while the rest of the stay did.
+  expect(JSON.stringify(record)).toContain("HMGUEST0001");
+
+  // Unticking deletes it, and the next visit starts on the uploader.
+  await page.getByLabel(/Remember my data on this device/).uncheck();
+  await expect.poll(() => storedRecord(page)).toBeNull();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Load your Airbnb exports" })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("the example data is never kept on this device", async ({ page }) => {
+  await openDemo(page);
+  // The demo shows no offer to keep it, and writes nothing either way.
+  await expect(page.getByRole("button", { name: "Keep it on this device" })).toHaveCount(0);
+  expect(await storedRecord(page)).toBeNull();
 });

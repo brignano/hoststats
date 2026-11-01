@@ -23,3 +23,40 @@ export async function expectNoSideScroll(page: Page) {
   );
   expect(overflow, "page scrolls sideways").toBeLessThanOrEqual(0);
 }
+
+/**
+ * The record HostStats kept in this browser's IndexedDB, or null if there is
+ * none. Opens with the same name, version and store as src/lib/savedData.ts —
+ * and creates the store if it is missing, exactly as the app does. Opening
+ * without a version would create a store-less database at version 1, which the
+ * app could then never upgrade, so its writes would silently do nothing.
+ */
+export async function storedRecord(page: Page): Promise<unknown> {
+  return page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        const open = indexedDB.open("hoststats", 1);
+        open.onupgradeneeded = () => {
+          const db = open.result;
+          if (!db.objectStoreNames.contains("session")) db.createObjectStore("session");
+        };
+        open.onerror = () => resolve(null);
+        open.onsuccess = () => {
+          const db = open.result;
+          const request = db
+            .transaction("session", "readonly")
+            .objectStore("session")
+            .get("current");
+          request.onsuccess = () => {
+            const value = request.result ?? null;
+            db.close();
+            resolve(value);
+          };
+          request.onerror = () => {
+            db.close();
+            resolve(null);
+          };
+        };
+      })
+  );
+}

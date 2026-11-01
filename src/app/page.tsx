@@ -183,8 +183,10 @@ export default function ProductPage() {
                 <h2>It stays on your device, because there is nowhere else for it to go.</h2>
                 <p>
                   HostStats has no database and no accounts. Your CSVs are parsed by your own
-                  browser and are gone when you close the tab. There are no analytics, no tracking
-                  pixels and no third-party scripts.
+                  browser and are gone when you close the tab, unless you ask it to remember them —
+                  and then they are kept in that browser, on that device, with your guests&rsquo;
+                  names stripped out. There are no analytics, no tracking pixels and no third-party
+                  scripts.
                 </p>
                 <p>
                   The one exception is a calendar link, if you choose to paste one: Airbnb will not
