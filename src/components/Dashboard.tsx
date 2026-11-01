@@ -41,8 +41,14 @@ interface Props {
   data: ParsedData;
   costs: Costs;
   onCostsChange: (costs: Costs) => void;
-  rememberCosts?: boolean;
-  onRememberCostsChange?: (remember: boolean) => void;
+  /** Whether the import and costs are kept on this device. Omit on the demo. */
+  remember?: boolean;
+  onRememberChange?: (remember: boolean) => void;
+  /** Set when this import was restored from this device rather than just uploaded. */
+  restoredAt?: Date;
+  /** Show the one-time offer to keep this import on the device. */
+  offerRemember?: boolean;
+  onDeclineRemember?: () => void;
   onReset: () => void;
   onAddMore: () => void;
   disableAddMore?: boolean;
@@ -52,7 +58,7 @@ interface Props {
 }
 
 const buttonClass =
-  "inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-strong bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:border-line disabled:cursor-not-allowed";
+  "inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-control bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:border-line disabled:cursor-not-allowed";
 
 function SectionHeading({ title, sub }: { title: string; sub: string }) {
   return (
@@ -131,8 +137,11 @@ export default function Dashboard({
   data,
   costs,
   onCostsChange,
-  rememberCosts,
-  onRememberCostsChange,
+  remember,
+  onRememberChange,
+  restoredAt,
+  offerRemember,
+  onDeclineRemember,
   onReset,
   onAddMore,
   disableAddMore,
@@ -179,10 +188,7 @@ export default function Dashboard({
     [reservations, payouts, deferredCosts, paceAsOf]
   );
 
-  const taxRowsFor = useCallback(
-    (year: number) => taxStayRows(reservations, year),
-    [reservations]
-  );
+  const taxRowsFor = useCallback((year: number) => taxStayRows(reservations, year), [reservations]);
 
   const hasIncome = nightValue > 0;
   const hasCosts = costs.monthlyFixed > 0 || costs.perStay > 0;
@@ -260,6 +266,50 @@ export default function Dashboard({
           </div>
         )}
 
+        {restoredAt && (
+          <div role="status" className="state state-info mb-s5">
+            <InfoIcon className="state-icon" />
+            <span>
+              <strong className="font-semibold">Picked up where you left off</strong> — this is the
+              import you kept on this device on{" "}
+              {restoredAt.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+              . <em>Start over</em> forgets it; untick <em>Remember my data</em> below to stop
+              keeping it.
+            </span>
+          </div>
+        )}
+
+        {offerRemember && onRememberChange && (
+          <div className="state state-info mb-s5">
+            <InfoIcon className="state-icon" />
+            <span>
+              <strong className="font-semibold">Skip the upload next time?</strong> HostStats can
+              keep this import in this browser, so you land straight here. It is never sent
+              anywhere, and guest names are never saved.
+              <span className="mt-s3 flex flex-wrap gap-s3">
+                <button
+                  type="button"
+                  onClick={() => onRememberChange(true)}
+                  className={buttonClass}
+                >
+                  Keep it on this device
+                </button>
+                <button
+                  type="button"
+                  onClick={onDeclineRemember}
+                  className="text-sm text-ink-soft underline rounded-sm"
+                >
+                  Not now
+                </button>
+              </span>
+            </span>
+          </div>
+        )}
+
         <NextActions actions={actions} />
 
         {/* Profit — the part Airbnb can't show, because it doesn't know your costs */}
@@ -269,8 +319,8 @@ export default function Dashboard({
             <CostsForm
               costs={costs}
               onChange={onCostsChange}
-              remember={rememberCosts}
-              onRememberChange={onRememberCostsChange}
+              remember={remember}
+              onRememberChange={onRememberChange}
             />
             {!hasIncome ? (
               <div className="state state-info">

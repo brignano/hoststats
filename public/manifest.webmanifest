@@ -2,9 +2,9 @@
   "name": "HostStats – What Your Airbnb Really Earns",
   "short_name": "HostStats",
   "description": "Profit after costs, gap nights, pace and tax totals from your Airbnb exports.",
-  "start_url": "/",
+  "start_url": "/app/",
   "display": "standalone",
-  "background_color": "#fafafa",
+  "background_color": "#fafafb",
   "theme_color": "#b4741f",
   "icons": [
     {

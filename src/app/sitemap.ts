@@ -6,5 +6,10 @@ export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // trailingSlash is on, so the canonical paths end in "/".
-  return [{ url: `${SITE_URL}/` }, { url: `${SITE_URL}/privacy/` }];
+  return [
+    { url: `${SITE_URL}/`, priority: 1 },
+    { url: `${SITE_URL}/app/`, priority: 0.8 },
+    { url: `${SITE_URL}/privacy/`, priority: 0.3 },
+    { url: `${SITE_URL}/terms/`, priority: 0.3 },
+  ];
 }

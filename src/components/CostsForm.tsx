@@ -5,13 +5,13 @@ import { Costs } from "@/lib/models";
 interface Props {
   costs: Costs;
   onChange: (costs: Costs) => void;
-  /** Whether the costs are saved on this device. Omit to hide the option (the demo). */
+  /** Whether the import and costs are kept on this device. Omit to hide the option (the demo). */
   remember?: boolean;
   onRememberChange?: (remember: boolean) => void;
 }
 
 const inputClass =
-  "w-full rounded-sm border border-line-strong bg-card text-ink font-mono tabular-nums pl-s5 pr-s3 py-s2 text-base";
+  "w-full rounded-sm border border-line-control bg-card text-ink font-mono tabular-nums pl-s5 pr-s3 py-s2 text-base";
 
 function MoneyField({
   id,
@@ -97,12 +97,13 @@ export default function CostsForm({ costs, onChange, remember, onRememberChange 
             type="checkbox"
             checked={remember}
             onChange={(e) => onRememberChange(e.target.checked)}
-            className="mt-[3px] h-4 w-4 accent-[var(--i)]"
+            className="mt-[3px] h-4 w-4"
           />
           <span>
-            Remember my costs on this device
+            Remember my data on this device
             <span className="block text-xs text-muted">
-              Saved in this browser only — never sent anywhere. Untick to delete them.
+              Your stays and these costs stay in this browser so you don&rsquo;t upload again —
+              never sent anywhere, and guest names are never saved. Untick to delete them.
             </span>
           </span>
         </label>

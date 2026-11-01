@@ -5,7 +5,7 @@
  */
 import { readFileSync } from "fs";
 import { join } from "path";
-import { FEATURES } from "@/components/FeatureStrip";
+import { FEATURES } from "@/lib/features";
 import { parseReservationsCSV } from "@/lib/importers/reservations";
 import { parseEarningsCSV } from "@/lib/importers/earnings";
 import {

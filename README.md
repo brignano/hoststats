@@ -21,7 +21,7 @@ A privacy-first dashboard that tells Airbnb hosts what Airbnb's own dashboard ca
 - 🔒 Privacy-first: all processing happens in your browser
 - 📈 Pace: nights on the books for the next three months against the same day last year, plus how far ahead guests book and when to have each month's prices set
 - 🧾 Tax season: yearly rents received and fair rental days (Schedule E lines 3 and 2), flags for the 14-day and 7-night thresholds, and a per-stay CSV for your accountant
-- 💾 Optionally remember your costs on this device (browser storage only, untick to delete)
+- 💾 Optionally remember your import and your costs on this device, so you don't upload again (browser storage only, guest names never saved, untick to delete)
 - 🔗 Paste a listing's Airbnb calendar link to see upcoming stays and the gap nights you can still sell (Airbnb has no public API or OAuth, so this is the no-CSV route)
 - 📁 Upload multiple files at once
 - 👀 Try it with example data before hunting down your exports
@@ -85,6 +85,8 @@ npm run test:e2e   # Browser + accessibility tests against ./out (build first;
 npm run format     # Format with Prettier
 npm run preview    # Build, then serve via Wrangler locally
 npm run deploy     # Build, then deploy to Cloudflare
+npm run proof      # Re-capture the product page's dashboard screenshots
+                   # (build first; writes public/dashboard-{light,dark}.png)
 ```
 
 ---
@@ -136,19 +138,35 @@ blocked".
 
 ## 🗂️ Project Structure
 
+The site is two surfaces sharing one design system:
+
+| Route                  | What it is                                   | Tier      |
+| ---------------------- | -------------------------------------------- | --------- |
+| `/`                    | The product page — what HostStats is and why | marketing |
+| `/app/`                | The tool: upload, then the dashboard         | tool      |
+| `/privacy/`, `/terms/` | Policy pages                                 | tool      |
+
+`/` opts into the marketing tier (`tier-marketing`) on its own wrapper, so the
+tool keeps the compact scale it wants — see `src/app/globals.css`, and §2 and
+§13 of `DESIGN.md` in [`@brignano/design`](https://github.com/brignano/design).
+
 ```
 src/
 ├── app/              # Next.js App Router pages
+│   ├── page.tsx         # The product page (server component, no client JS)
+│   ├── app/             # The tool: upload screen + dashboard
 ├── components/       # UI components (charts, cards, upload)
 ├── lib/
 │   ├── models.ts        # Canonical data types
 │   ├── dates.ts         # Timezone-safe date parsing
 │   ├── format.ts        # Human-readable number formatting
 │   ├── calculations.ts  # Stats computations
+│   ├── features.ts      # Product-page copy, checked against the sample data
 │   └── importers/       # CSV parsers (reservations + earnings)
 └── __tests__/        # Jest unit tests
 
 public/samples/       # Example CSVs powering the in-app demo
+scripts/              # capture-proof.mjs — the product page's screenshots
 fixtures/             # Sample CSV files for testing
 docs/DEPLOYING.md     # Cloudflare hosting + optional Access sign-in guide
 wrangler.jsonc        # Cloudflare Workers config
@@ -179,6 +197,13 @@ drift either side of UTC.
 ## 🛡️ Privacy
 
 All CSV processing happens **locally in your browser**. No files are uploaded to any server. No analytics or tracking.
+
+Nothing is written to your device unless you tick **Remember my data on this
+device**. With it ticked, the stays and payouts from your import are kept in
+that browser's IndexedDB and your two cost figures in its local storage — on
+that device only, never sent anywhere. Guest names are stripped out before
+anything is stored, because HostStats never displays or uses them. Unticking
+deletes both immediately.
 
 The one exception is a calendar link you choose to paste: it is fetched through
 a small pass-through proxy that only fetches Airbnb calendar addresses and stores

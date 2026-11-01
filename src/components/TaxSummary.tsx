@@ -15,7 +15,7 @@ interface Props {
 const tabClass = (active: boolean) =>
   `px-s3 py-s1 text-sm rounded-sm border font-mono tabular-nums transition-colors duration-fast ease-brand ${
     active
-      ? "border-line-strong bg-card text-ink font-semibold"
+      ? "border-line-control bg-card text-ink font-semibold"
       : "border-transparent text-muted hover:text-ink hover:bg-surface-hover"
   }`;
 
@@ -144,7 +144,7 @@ function TaxSummary({ years, rowsFor }: Props) {
         <button
           type="button"
           onClick={() => download(y, rowsFor(y.year))}
-          className="mt-s4 inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-strong bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink"
+          className="mt-s4 inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-control bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink"
         >
           Download {y.year} for your accountant (CSV)
         </button>

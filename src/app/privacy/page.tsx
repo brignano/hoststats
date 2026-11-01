@@ -19,16 +19,19 @@ export default function PrivacyPolicy() {
       <article className="max-w-measure mx-auto bg-card rounded-lg border border-line shadow-1 p-s6 sm:p-s7">
         <h1 className="text-3xl font-semibold tracking-tight text-ink mb-s2">Privacy Policy</h1>
         <p className="text-sm text-muted mb-s6">
-          For <strong>HostStats</strong>. Last updated 14 October 2026.
+          For <strong>HostStats</strong>. Last updated 1 November 2026.
         </p>
 
         <div className="space-y-s5 text-ink-soft leading-relaxed">
           <section>
             <h2 className="text-lg font-medium text-ink mb-s2">The short version</h2>
             <p>
-              HostStats does not collect, store, or share any of your data. Your spreadsheets are
-              read by your own browser and never leave your device. The one exception is an Airbnb
-              calendar link, if you choose to paste one — see below.
+              HostStats does not collect or share any of your data, and nothing you load is sent to
+              a server. Your spreadsheets are read by your own browser and never leave your device.
+              Nothing is written to your device either, unless you ask for it: tick &ldquo;Remember
+              my data on this device&rdquo; and it is kept in your own browser so you need not
+              upload again. The one other exception is an Airbnb calendar link, if you choose to
+              paste one — both are described below.
             </p>
           </section>
 
@@ -42,16 +45,38 @@ export default function PrivacyPolicy() {
               database, and its only server code is the calendar fetch described below.
             </p>
             <p className="mt-s3">
-              Your files and statistics are not written to disk. Close or refresh the tab and they
-              are gone. There is no &ldquo;delete my data&rdquo; process because nothing was ever
-              kept.
+              By default nothing is written to your device. Close or refresh the tab and your stays
+              and statistics are gone.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-medium text-ink mb-s2">
+              Remembering your data on this device
+            </h2>
+            <p>
+              Uploading the same export on every visit gets old, so HostStats can keep it — but only
+              if you tick{" "}
+              <strong className="font-medium text-ink">Remember my data on this device</strong>.
+              Until you do, nothing is stored.
             </p>
             <p className="mt-s3">
-              The one thing HostStats can keep, and only if you ask, is your two cost figures: tick
-              &ldquo;Remember my costs on this device&rdquo; and they are saved in your
-              browser&rsquo;s local storage so you don&rsquo;t retype them next time. They stay on
-              that device, are never sent anywhere, and untick the box (or clear your browser data)
-              to delete them.
+              With it ticked, two things are saved in your own browser: the stays and payouts from
+              your import, in its IndexedDB storage, and your two cost figures, in its local
+              storage. Both stay on that device. Neither is sent anywhere, because there is nowhere
+              to send them — HostStats still has no database and no accounts.
+            </p>
+            <p className="mt-s3">
+              <strong className="font-medium text-ink">Guest names are never saved.</strong> Airbnb
+              puts your guests&rsquo; names in the reservations export, and HostStats does not
+              display or use them, so they are stripped out before anything is written down.
+            </p>
+            <p className="mt-s3">
+              To delete it: untick the box, which erases both straight away, or press{" "}
+              <strong className="font-medium text-ink">Start over</strong>, which forgets the
+              current import but keeps the setting for your next one. Clearing your browser&rsquo;s
+              site data for HostStats removes everything either way. On a shared or public computer,
+              leave the box unticked.
             </p>
           </section>
 
@@ -68,8 +93,8 @@ export default function PrivacyPolicy() {
               body of the request rather than its address, so it does not appear in request logs,
               and the server only ever fetches Airbnb calendar addresses. Airbnb&rsquo;s calendar
               holds booked and blocked dates and a booking reference — no prices, and no guest
-              names. It is read in your browser like the spreadsheets and is gone when you close the
-              tab.
+              names. It is read in your browser like the spreadsheets, and is kept afterwards only
+              on the same opt-in terms as everything else above.
             </p>
             <p className="mt-s3">
               Anyone with the link can see your booked dates, so treat it like a password. You can
@@ -126,12 +151,18 @@ export default function PrivacyPolicy() {
           </section>
         </div>
 
-        <div className="mt-s7 pt-s5 border-t border-line">
+        <div className="mt-s7 pt-s5 border-t border-line flex flex-wrap gap-s4">
           <Link
             href="/"
             className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
           >
-            ← Back to HostStats
+            ← About HostStats
+          </Link>
+          <Link
+            href="/app/"
+            className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+          >
+            Open the dashboard
           </Link>
         </div>
       </article>

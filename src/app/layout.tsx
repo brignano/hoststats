@@ -80,12 +80,13 @@ const STRUCTURED_DATA = {
     {
       "@type": "WebApplication",
       name: "HostStats",
-      url: `${SITE_URL}/`,
+      url: `${SITE_URL}/app/`,
       description: DESCRIPTION,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Any",
       browserRequirements: "Requires JavaScript",
       image: `${SITE_URL}/og.png`,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     },
   ],
 };
@@ -96,7 +97,7 @@ export const viewport: Viewport = {
   // custom property. These mirror --bg per theme (--n-25 / --n-0) and must be
   // kept in step with tokens.css by hand.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: light)", color: "#fafafb" },
     { media: "(prefers-color-scheme: dark)", color: "#0d0d0f" },
   ],
   width: "device-width",
