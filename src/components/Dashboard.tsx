@@ -52,7 +52,7 @@ interface Props {
 }
 
 const buttonClass =
-  "inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-strong bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:border-line disabled:cursor-not-allowed";
+  "inline-flex items-center gap-s2 text-sm px-s3 py-s2 rounded-sm border border-line-control bg-card text-ink-soft transition-colors duration-fast ease-brand hover:bg-surface-hover hover:text-ink disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:border-line disabled:cursor-not-allowed";
 
 function SectionHeading({ title, sub }: { title: string; sub: string }) {
   return (
@@ -179,10 +179,7 @@ export default function Dashboard({
     [reservations, payouts, deferredCosts, paceAsOf]
   );
 
-  const taxRowsFor = useCallback(
-    (year: number) => taxStayRows(reservations, year),
-    [reservations]
-  );
+  const taxRowsFor = useCallback((year: number) => taxStayRows(reservations, year), [reservations]);
 
   const hasIncome = nightValue > 0;
   const hasCosts = costs.monthlyFixed > 0 || costs.perStay > 0;

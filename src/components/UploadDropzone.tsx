@@ -41,7 +41,7 @@ export default function UploadDropzone({ onFiles, loading, onCancel }: Props) {
         ${
           isDragActive
             ? "border-interactive bg-interactive-surface"
-            : "border-line-strong bg-card hover:bg-surface-hover"
+            : "border-line-control bg-card hover:bg-surface-hover"
         }
         ${loading ? "opacity-60 cursor-not-allowed" : ""}
       `}

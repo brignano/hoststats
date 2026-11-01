@@ -126,12 +126,18 @@ export default function PrivacyPolicy() {
           </section>
         </div>
 
-        <div className="mt-s7 pt-s5 border-t border-line">
+        <div className="mt-s7 pt-s5 border-t border-line flex flex-wrap gap-s4">
           <Link
             href="/"
             className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
           >
-            ← Back to HostStats
+            ← About HostStats
+          </Link>
+          <Link
+            href="/app/"
+            className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+          >
+            Open the dashboard
           </Link>
         </div>
       </article>

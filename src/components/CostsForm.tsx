@@ -11,7 +11,7 @@ interface Props {
 }
 
 const inputClass =
-  "w-full rounded-sm border border-line-strong bg-card text-ink font-mono tabular-nums pl-s5 pr-s3 py-s2 text-base";
+  "w-full rounded-sm border border-line-control bg-card text-ink font-mono tabular-nums pl-s5 pr-s3 py-s2 text-base";
 
 function MoneyField({
   id,
@@ -97,7 +97,7 @@ export default function CostsForm({ costs, onChange, remember, onRememberChange 
             type="checkbox"
             checked={remember}
             onChange={(e) => onRememberChange(e.target.checked)}
-            className="mt-[3px] h-4 w-4 accent-[var(--i)]"
+            className="mt-[3px] h-4 w-4"
           />
           <span>
             Remember my costs on this device

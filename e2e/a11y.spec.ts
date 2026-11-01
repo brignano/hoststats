@@ -4,7 +4,7 @@ import { openDemo } from "./helpers";
 
 /**
  * Zero axe violations, in both themes, at desktop and phone widths. The
- * design system's floor (DESIGN.md §9) is 4.5:1 for body text; this is what
+ * design system's floor (DESIGN.md §10) is 4.5:1 for body text; this is what
  * keeps a faint grey from creeping back in.
  */
 
@@ -25,8 +25,13 @@ for (const colorScheme of ["light", "dark"] as const) {
     test.describe(`${colorScheme}, ${width}px`, () => {
       test.use({ colorScheme, viewport: { width, height: 900 } });
 
-      test("landing page", async ({ page }) => {
+      test("product page", async ({ page }) => {
         await page.goto("/");
+        await expectNoViolations(page);
+      });
+
+      test("upload screen", async ({ page }) => {
+        await page.goto("/app/");
         await expectNoViolations(page);
       });
 
@@ -41,5 +46,10 @@ for (const colorScheme of ["light", "dark"] as const) {
 
 test("privacy page", async ({ page }) => {
   await page.goto("/privacy/");
+  await expectNoViolations(page);
+});
+
+test("terms page", async ({ page }) => {
+  await page.goto("/terms/");
   await expectNoViolations(page);
 });

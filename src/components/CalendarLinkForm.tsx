@@ -11,7 +11,7 @@ interface Props {
 }
 
 const inputClass =
-  "w-full rounded-sm border border-line-strong bg-card text-ink px-s3 py-s2 text-base";
+  "w-full rounded-sm border border-line-control bg-card text-ink px-s3 py-s2 text-base";
 
 /**
  * Paste-a-link import. Airbnb has no public API or OAuth for outside apps,

@@ -10,8 +10,9 @@ export function watchForErrors(page: Page): string[] {
   return errors;
 }
 
+/** Open the example dashboard from the tool at /app/ (the product page is /). */
 export async function openDemo(page: Page) {
-  await page.goto("/");
+  await page.goto("/app/");
   await page.getByRole("button", { name: "See it with example data" }).click();
   await expect(page.getByRole("heading", { name: "What to do now" })).toBeVisible();
 }

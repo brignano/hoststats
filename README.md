@@ -85,6 +85,8 @@ npm run test:e2e   # Browser + accessibility tests against ./out (build first;
 npm run format     # Format with Prettier
 npm run preview    # Build, then serve via Wrangler locally
 npm run deploy     # Build, then deploy to Cloudflare
+npm run proof      # Re-capture the product page's dashboard screenshots
+                   # (build first; writes public/dashboard-{light,dark}.png)
 ```
 
 ---
@@ -136,19 +138,35 @@ blocked".
 
 ## 🗂️ Project Structure
 
+The site is two surfaces sharing one design system:
+
+| Route                  | What it is                                   | Tier      |
+| ---------------------- | -------------------------------------------- | --------- |
+| `/`                    | The product page — what HostStats is and why | marketing |
+| `/app/`                | The tool: upload, then the dashboard         | tool      |
+| `/privacy/`, `/terms/` | Policy pages                                 | tool      |
+
+`/` opts into the marketing tier (`tier-marketing`) on its own wrapper, so the
+tool keeps the compact scale it wants — see `src/app/globals.css`, and §2 and
+§13 of `DESIGN.md` in [`@brignano/design`](https://github.com/brignano/design).
+
 ```
 src/
 ├── app/              # Next.js App Router pages
+│   ├── page.tsx         # The product page (server component, no client JS)
+│   ├── app/             # The tool: upload screen + dashboard
 ├── components/       # UI components (charts, cards, upload)
 ├── lib/
 │   ├── models.ts        # Canonical data types
 │   ├── dates.ts         # Timezone-safe date parsing
 │   ├── format.ts        # Human-readable number formatting
 │   ├── calculations.ts  # Stats computations
+│   ├── features.ts      # Product-page copy, checked against the sample data
 │   └── importers/       # CSV parsers (reservations + earnings)
 └── __tests__/        # Jest unit tests
 
 public/samples/       # Example CSVs powering the in-app demo
+scripts/              # capture-proof.mjs — the product page's screenshots
 fixtures/             # Sample CSV files for testing
 docs/DEPLOYING.md     # Cloudflare hosting + optional Access sign-in guide
 wrangler.jsonc        # Cloudflare Workers config

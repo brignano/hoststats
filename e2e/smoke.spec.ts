@@ -1,11 +1,42 @@
 import { expect, test } from "@playwright/test";
 import { expectNoSideScroll, openDemo, watchForErrors } from "./helpers";
 
-test("landing page pitches the product and loads cleanly", async ({ page }) => {
+test("the product page makes its argument and asks for one thing", async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("really earns");
-  await expect(page.getByRole("heading", { name: "Gap nights" })).toBeVisible();
+  // DESIGN.md §13: the status is a word with a dot, and the story is a
+  // numbered list of chapters the reader can land on.
+  await expect(page.getByText("Free · open source").first()).toBeVisible();
+  for (const id of ["problem", "see", "how", "privacy"]) {
+    await expect(page.locator(`li#${id}`)).toBeVisible();
+  }
+  // One primary action, repeated: hero and close band both open the tool.
+  const open = page.getByRole("link", { name: "Open HostStats" });
+  await expect(open).toHaveCount(3); // header, hero, close
+  await expect(open.first()).toHaveAttribute("href", "/app/");
+  // The proof slot is a real screenshot of the product, and it loads.
+  const shot = page.locator(".pp-media img");
+  await expect(shot).toBeVisible();
+  expect(await shot.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0);
+  // The legal line carries the copyright and both policy pages.
+  await expect(page.locator(".pp-legal").first()).toContainText("Anthony Brignano");
+  await expect(page.getByRole("link", { name: "Terms" })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("the product page's actions reach the tool", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "See it with example data" }).first().click();
+  // ?demo=1 loads the bundled export without a click, then tidies the URL.
+  await expect(page.getByRole("heading", { name: "What to do now" })).toBeVisible();
+  await expect(page).toHaveURL(/\/app\/$/);
+});
+
+test("the tool page loads cleanly and takes a calendar link", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/app/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Load your Airbnb exports");
   await expect(page.getByLabel("Airbnb calendar link")).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -79,7 +110,7 @@ test("a calendar link shows the upcoming gap nights", async ({ page }) => {
     await route.fulfill({ status: 200, contentType: "text/calendar", body: feed });
   });
 
-  await page.goto("/");
+  await page.goto("/app/");
   await page
     .getByLabel("Airbnb calendar link")
     .fill("https://www.airbnb.com/calendar/ical/123.ics?s=secret");
@@ -97,7 +128,7 @@ test("a link that isn't an Airbnb calendar is refused before any request", async
     called = true;
     return route.abort();
   });
-  await page.goto("/");
+  await page.goto("/app/");
   await page.getByLabel("Airbnb calendar link").fill("https://example.com/cal.ics");
   await page.getByRole("button", { name: "Load calendar" }).click();
   await expect(page.locator("form").getByRole("alert")).toContainText("Airbnb calendar link");
@@ -105,7 +136,7 @@ test("a link that isn't an Airbnb calendar is refused before any request", async
 });
 
 test("every page links a favicon the browser can load", async ({ page, request }) => {
-  for (const path of ["/", "/privacy/"]) {
+  for (const path of ["/", "/app/", "/privacy/", "/terms/"]) {
     await page.goto(path);
     const hrefs = await page
       .locator('link[rel="icon"]')

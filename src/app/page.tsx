@@ -1,273 +1,274 @@
-"use client";
+import Link from "next/link";
 
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import UploadDropzone from "@/components/UploadDropzone";
-import CalendarLinkForm from "@/components/CalendarLinkForm";
-import FeatureStrip from "@/components/FeatureStrip";
-import { SAMPLE_AS_OF, SAMPLE_COSTS } from "@/lib/sample";
-import { AlertCircleIcon } from "@/components/icons";
-import { Costs, ParsedData } from "@/lib/models";
-import { parseFile } from "@/lib/importers";
-import { mergeParsed } from "@/lib/merge";
-import { loadAirbnbCalendar } from "@/lib/calendarFetch";
-import { clearSavedCosts, loadSavedCosts, saveCosts } from "@/lib/savedCosts";
+import { FEATURES } from "@/lib/features";
 
-// The dashboard pulls in Recharts (~470 KB). Nobody sees a chart until they
-// have uploaded something, so keep it out of the first paint entirely.
-const Dashboard = dynamic(() => import("@/components/Dashboard"), {
-  ssr: false,
-  loading: () => (
-    <main className="min-h-screen flex items-center justify-center px-s4">
-      <p className="text-lg text-muted" role="status">
-        Building your dashboard…
-      </p>
-    </main>
-  ),
-});
+/**
+ * The product page, built to DESIGN.md §13 in @brignano/design: one argument,
+ * one ask, in a fixed band order — header, hero, story, close, footer.
+ *
+ * This is the one MARKETING-tier surface in HostStats. `.tier-marketing` only
+ * redefines custom properties and those inherit, so it rides on this page's own
+ * wrapper rather than on <html>, which the tool at /app/ shares (§2). The
+ * `.pp-*` structure comes from product-page.css, imported in globals.css.
+ *
+ * A server component on purpose: no client JS, no Recharts, nothing to hydrate.
+ */
 
-const NO_COSTS: Costs = { monthlyFixed: 0, perStay: 0 };
+// How to open the product. The secondary action loads the bundled example
+// export, which is the nearest thing to a live demo in the proof slot — the
+// site sends X-Frame-Options: DENY, so the app cannot be embedded in an iframe.
+const OPEN = "/app/";
+const DEMO = "/app/?demo=1";
 
+const STEPS = [
+  {
+    title: "Export from Airbnb",
+    body: "Reservations as CSV, and the transaction history too if you want the money charts.",
+  },
+  {
+    title: "Drop them in",
+    body: "Your browser reads them. No account to make, and no upload — or paste a calendar link instead.",
+  },
+  {
+    title: "Read the answer",
+    body: "What to do now sits at the top: the gap nights to open up, the month falling behind, the prices to set.",
+  },
+];
 
-const SAMPLE_FILES = ["/samples/sample-reservations.csv", "/samples/sample-earnings.csv"];
-
-export default function Home() {
-  const [data, setData] = useState<ParsedData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [calendarError, setCalendarError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [addingMore, setAddingMore] = useState(false);
-  const [isDemo, setIsDemo] = useState(false);
-  // Lives here, not in the dashboard, so "Add more files" doesn't wipe it.
-  const [costs, setCosts] = useState<Costs>(NO_COSTS);
-  // Opt-in "remember on this device". Read when the dashboard first opens
-  // rather than on page load, so the prerendered page never touches storage.
-  const [rememberCosts, setRememberCosts] = useState(false);
-
-  /** Add newly parsed data to what's loaded (or replace it, on a fresh start). */
-  function commit(parsed: ParsedData[], demo: boolean) {
-    // Adding to the example data starts fresh: a host's own stays must never
-    // be mixed with the sample's, or inherit its costs.
-    const leavingDemo = isDemo && !demo;
-    let combined: ParsedData =
-      addingMore && data && !isDemo ? data : { reservations: [], payouts: [], blocked: [] };
-    for (const p of parsed) combined = mergeParsed(combined, p);
-    setData(combined);
-    setIsDemo(demo);
-    if (demo) {
-      setCosts(SAMPLE_COSTS);
-    } else if (leavingDemo || (costs.monthlyFixed === 0 && costs.perStay === 0)) {
-      const saved = loadSavedCosts();
-      setCosts(saved ?? NO_COSTS);
-      if (saved) setRememberCosts(true);
-    }
-    setAddingMore(false);
-  }
-
-  async function ingest(files: File[], demo = false) {
-    setLoading(true);
-    setError(null);
-    try {
-      const parsed: ParsedData[] = [];
-      for (const file of files) parsed.push(await parseFile(file));
-      commit(parsed, demo);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleCalendar(link: string, listingName: string) {
-    setLoading(true);
-    setError(null);
-    setCalendarError(null);
-    try {
-      commit([await loadAirbnbCalendar(link, listingName)], false);
-    } catch (err) {
-      setCalendarError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleFiles(files: File[]) {
-    return ingest(files, false);
-  }
-
-  /** Load the bundled example export so people can see the app work first. */
-  async function handleDemo() {
-    setLoading(true);
-    setError(null);
-    try {
-      const files = await Promise.all(
-        SAMPLE_FILES.map(async (path) => {
-          const res = await fetch(path);
-          if (!res.ok) throw new Error(`Could not load the example data.`);
-          const text = await res.text();
-          return new File([text], path.split("/").pop()!, { type: "text/csv" });
-        })
-      );
-      await ingest(files, true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setLoading(false);
-    }
-  }
-
-  function handleCostsChange(next: Costs) {
-    setCosts(next);
-    // The demo's numbers are never saved over a host's real ones.
-    if (rememberCosts && !isDemo) saveCosts(next);
-  }
-
-  function handleRememberChange(on: boolean) {
-    setRememberCosts(on);
-    if (on) saveCosts(costs);
-    else clearSavedCosts();
-  }
-
-  function handleReset() {
-    setData(null);
-    setError(null);
-    setAddingMore(false);
-    setIsDemo(false);
-    setCosts(NO_COSTS);
-    setCalendarError(null);
-  }
-
-  function handleAddMore() {
-    setAddingMore(true);
-    setError(null);
-    setCalendarError(null);
-  }
-
-  function handleCancelAddMore() {
-    setAddingMore(false);
-    setError(null);
-    setCalendarError(null);
-  }
-
-  if (data && !addingMore) {
-    return (
-      <Dashboard
-        data={data}
-        costs={costs}
-        onCostsChange={handleCostsChange}
-        rememberCosts={isDemo ? undefined : rememberCosts}
-        onRememberCostsChange={handleRememberChange}
-        onReset={handleReset}
-        onAddMore={handleAddMore}
-        isDemo={isDemo}
-        asOf={isDemo ? SAMPLE_AS_OF : undefined}
-      />
-    );
-  }
+export default function ProductPage() {
+  // The build's clock. §13 forbids both typing the year by hand, where it goes
+  // stale every January, and writing it from client script, where it flashes.
+  const year = new Date().getFullYear();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-s4 py-s7">
-      <div className="max-w-xl w-full">
-        {addingMore ? (
-          <div className="text-center mb-s6">
-            <h1 className="text-2xl font-semibold tracking-tight">Add more files</h1>
-            <p className="text-sm text-muted mt-s1">
-              Another export or calendar is added to what&rsquo;s already loaded.
-            </p>
+    <div className="pp tier-marketing">
+      <a className="pp-skip" href="#main">
+        Skip to content
+      </a>
+
+      <header className="pp-header">
+        <div className="pp-wrap">
+          <Link className="pp-brand" href="/">
+            HostStats
+          </Link>
+          <nav className="pp-nav" aria-label="On this page">
+            <a href="#problem">The problem</a>
+            <a href="#see">What you see</a>
+            <a href="#privacy">Your data</a>
+          </nav>
+          <div className="pp-header-actions">
+            <span className="pp-status" data-state="open">
+              Free &middot; open source
+            </span>
+            <Link className="pp-button is-small" href={OPEN}>
+              Open HostStats
+            </Link>
           </div>
-        ) : (
-          <>
-            <div className="text-center mb-s5">
-              <p className="text-sm font-medium text-muted mb-s2">HostStats</p>
-              <h1 className="text-3xl font-semibold tracking-tight text-ink">
-                What your Airbnb really earns, and where it&rsquo;s leaking money
-              </h1>
-              <p className="text-base text-ink-soft mt-s3">
-                Airbnb shows you payouts. HostStats shows profit after your costs, the empty
-                nights stuck between stays, and whether next month is filling as fast as last
-                year. No account, and nothing kept on a server.
-              </p>
-            </div>
+        </div>
+      </header>
 
-            <div className="text-center mb-s6">
-              <button
-                type="button"
-                onClick={handleDemo}
-                disabled={loading}
-                className="text-base font-medium px-s5 py-s3 rounded bg-interactive text-on-interactive transition-colors duration-fast ease-brand hover:bg-interactive-hover disabled:bg-interactive-disabled-bg disabled:text-interactive-disabled-ink disabled:cursor-not-allowed"
-              >
-                See it with example data
-              </button>
-              <p className="text-xs text-muted mt-s2">
-                Or use your own Airbnb exports below — they never leave this device.
-              </p>
-            </div>
-
-            <FeatureStrip />
-
-            <h2 className="text-lg font-semibold text-ink mt-s7 mb-s3">Use your own data</h2>
-          </>
-        )}
-
-        <div aria-live="polite">
-          {error && (
-            <div role="alert" className="state state-danger mb-s4 whitespace-pre-line">
-              <AlertCircleIcon className="state-icon" />
-              <span>
-                <strong className="font-semibold">That didn&rsquo;t work.</strong> {error}
+      <main id="main">
+        <section className="pp-hero">
+          <div className="pp-wrap">
+            <div>
+              <span className="pp-status" data-state="open">
+                Free &middot; open source
               </span>
+              <h1 className="pp-thesis">
+                What your Airbnb really earns, and where it&rsquo;s leaking money.
+              </h1>
+              <p className="pp-subhead">
+                Airbnb shows you payouts. HostStats shows profit after your costs, the empty nights
+                stranded between stays, and whether next month is filling as fast as last year.
+                It&rsquo;s free and open source, and there is no account.
+              </p>
+              <p className="pp-actions">
+                <Link className="pp-button" href={OPEN}>
+                  Open HostStats
+                </Link>
+                <Link className="pp-button is-secondary" href={DEMO}>
+                  See it with example data
+                </Link>
+              </p>
+              <p className="pp-note">
+                Your spreadsheets are read in your browser and never uploaded.
+              </p>
             </div>
-          )}
+
+            {/*
+              The proof slot is the product: a real screenshot of the dashboard
+              on the bundled example data, captured from the built site. Two of
+              them, swapped by the reader's theme in plain HTML, because a
+              light-mode screenshot in a dark-mode frame reads as a mistake.
+            */}
+            <figure className="pp-media">
+              <picture>
+                <source srcSet="/dashboard-dark.png" media="(prefers-color-scheme: dark)" />
+                <img
+                  src="/dashboard-light.png"
+                  width={900}
+                  height={580}
+                  alt="The HostStats dashboard on example data: a what-to-do-now list, profit after costs, and the gap nights between stays."
+                />
+              </picture>
+            </figure>
+          </div>
+        </section>
+
+        <ol className="pp-story">
+          <li className="pp-chapter" id="problem">
+            <div className="pp-wrap">
+              <p className="pp-label">The problem</p>
+              <div className="pp-chapter-body">
+                <h2>Airbnb tells you what it paid you, not what you kept.</h2>
+                <p>
+                  Your payout is not your profit. Cleaning, laundry, supplies, the mortgage, the
+                  utilities and the management fee all come out of it, and Airbnb knows about none
+                  of them. So the number on the dashboard is the one number a host cannot make a
+                  decision with.
+                </p>
+                <p>
+                  The gaps are worse. A single night stranded between two stays almost never sells,
+                  and nothing tells you it is there while you can still do something about it. Nor
+                  does anything tell you that next August is fifteen nights behind the August you
+                  had last year — until August.
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <li className="pp-chapter" id="see">
+            <div className="pp-wrap">
+              <p className="pp-label">What you see</p>
+              <div className="pp-chapter-body">
+                <h2>Four answers, in the words you would use yourself.</h2>
+                <p>
+                  Each one is a sentence, not a chart to interpret. These are the real lines from
+                  the example data, so you can judge it before you go looking for your exports.
+                </p>
+                <ul className="pp-points">
+                  {FEATURES.map((f) => (
+                    <li key={f.title}>
+                      <h3>{f.title}</h3>
+                      <p>{f.body}</p>
+                      <span className="block mt-s2 font-mono text-xs text-muted">{f.example}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li className="pp-chapter" id="how">
+            <div className="pp-wrap">
+              <p className="pp-label">How it works</p>
+              <div className="pp-chapter-body">
+                <h2>Three steps, and the longest one is finding the download button.</h2>
+                <ul className="pp-points">
+                  {STEPS.map((s) => (
+                    <li key={s.title}>
+                      <h3>{s.title}</h3>
+                      <p>{s.body}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          <li className="pp-chapter" id="privacy">
+            <div className="pp-wrap">
+              <p className="pp-label">Your data</p>
+              <div className="pp-chapter-body">
+                <h2>It stays on your device, because there is nowhere else for it to go.</h2>
+                <p>
+                  HostStats has no database and no accounts. Your CSVs are parsed by your own
+                  browser and are gone when you close the tab. There are no analytics, no tracking
+                  pixels and no third-party scripts.
+                </p>
+                <p>
+                  The one exception is a calendar link, if you choose to paste one: Airbnb will not
+                  let a web page read a calendar directly, so it is fetched through a small
+                  pass-through proxy that stores and logs nothing. The whole thing is{" "}
+                  <a
+                    href="https://github.com/brignano/hoststats"
+                    className="text-interactive-ink underline hover:text-interactive-hover"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    open source
+                  </a>
+                  , so none of this has to be taken on trust.
+                </p>
+              </div>
+            </div>
+          </li>
+        </ol>
+
+        <section className="pp-close" id="start">
+          <div className="pp-wrap">
+            <div>
+              <span className="pp-status" data-state="open">
+                Free &middot; open source
+              </span>
+              <h2>See what a month actually made you.</h2>
+              <p className="pp-subhead">
+                Free, open source, and no account — so the only thing between you and the answer is
+                finding your last CSV export.
+              </p>
+            </div>
+            <div className="pp-panel">
+              <p className="pp-actions">
+                <Link className="pp-button" href={OPEN}>
+                  Open HostStats
+                </Link>
+                <Link className="pp-button is-secondary" href={DEMO}>
+                  See it with example data
+                </Link>
+              </p>
+              <p className="pp-note">
+                Nothing to install and nothing to sign up for. Your files are read in your browser
+                and never uploaded; a calendar link is fetched once and never stored.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="pp-footer">
+        <div className="pp-wrap">
+          <p>
+            <Link className="pp-brand" href="/">
+              HostStats
+            </Link>
+            <span>What your Airbnb really earns, after what it costs you.</span>
+          </p>
+          <nav aria-label="More">
+            <Link href={OPEN}>Open the dashboard</Link>
+            <a
+              href="https://github.com/brignano/hoststats"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Source
+            </a>
+            <a href="mailto:hi@brignano.io">Contact</a>
+          </nav>
+          <div className="pp-legal">
+            <small>&copy; {year} Anthony Brignano. All rights reserved.</small>
+            <nav aria-label="Legal">
+              <Link href="/privacy/">Privacy</Link>
+              <Link href="/terms/">Terms</Link>
+            </nav>
+          </div>
+          <p className="pp-legal">
+            <small>
+              Not affiliated with, endorsed by, or sponsored by Airbnb, Inc. &ldquo;Airbnb&rdquo; is
+              a trademark of Airbnb, Inc.
+            </small>
+          </p>
         </div>
-
-        <UploadDropzone
-          onFiles={handleFiles}
-          loading={loading}
-          onCancel={addingMore ? handleCancelAddMore : undefined}
-        />
-
-        <details className="mt-s3 bg-card rounded border border-line p-s4 text-sm text-ink-soft shadow-1">
-          <summary className="cursor-pointer font-medium text-ink rounded-sm">
-            Where do I find these files?
-          </summary>
-          <ol className="mt-s3 space-y-s2 list-decimal list-inside">
-            <li>
-              On a computer, sign in at{" "}
-              <a
-                href="https://www.airbnb.com/hosting/reservations"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-interactive-ink hover:text-interactive-hover"
-              >
-                airbnb.com/hosting
-              </a>
-              .
-            </li>
-            <li>
-              Open <strong className="font-medium text-ink">Reservations</strong> and click{" "}
-              <strong className="font-medium text-ink">Export to CSV</strong>. Save the file.
-            </li>
-            <li>
-              Open <strong className="font-medium text-ink">Earnings</strong> →{" "}
-              <strong className="font-medium text-ink">Transaction history</strong> and export that
-              too (optional — it adds the money charts).
-            </li>
-            <li>Come back here and drop both files above.</li>
-          </ol>
-        </details>
-
-        <div className="mt-s4">
-          <CalendarLinkForm onSubmit={handleCalendar} loading={loading} error={calendarError} />
-        </div>
-
-
-        <p className="mt-s5 text-center text-xs text-muted">
-          Files are read in your browser and never uploaded. A calendar link is fetched through
-          HostStats&rsquo;s server and never stored. Not affiliated with Airbnb.{" "}
-          <a href="/privacy/" className="underline hover:text-ink-soft rounded-sm">
-            Privacy
-          </a>
-        </p>
-      </div>
-    </main>
+      </footer>
+    </div>
   );
 }
