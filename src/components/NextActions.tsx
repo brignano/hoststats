@@ -45,7 +45,7 @@ function NextActions({ actions }: Props) {
                 <p className="text-sm text-ink-soft mt-s1">{a.detail}</p>
                 <a
                   href={a.href}
-                  className="inline-block mt-s1 text-sm text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+                  className="inline-block mt-s1 text-sm text-interactive-ink underline hover:text-interactive-ink-hover rounded-sm"
                 >
                   {a.linkLabel} →
                 </a>

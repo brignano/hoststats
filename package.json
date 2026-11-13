@@ -17,7 +17,7 @@
     "proof": "node scripts/capture-proof.mjs"
   },
   "dependencies": {
-    "@brignano/design": "^0.6.0",
+    "@brignano/design": "^0.9.0",
     "next": "16.3.8",
     "papaparse": "^5.4.1",
     "react": "^19.2.4",

@@ -120,7 +120,7 @@ export default function PrivacyPolicy() {
                 href="https://www.cloudflare.com/privacypolicy/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-interactive-ink underline hover:text-interactive-hover"
+                className="text-interactive-ink underline hover:text-interactive-ink-hover"
               >
                 Cloudflare&rsquo;s privacy policy
               </a>
@@ -134,7 +134,7 @@ export default function PrivacyPolicy() {
               Questions about this policy can go to{" "}
               <a
                 href="mailto:hi@brignano.io"
-                className="text-interactive-ink underline hover:text-interactive-hover"
+                className="text-interactive-ink underline hover:text-interactive-ink-hover"
               >
                 hi@brignano.io
               </a>
@@ -154,13 +154,13 @@ export default function PrivacyPolicy() {
         <div className="mt-s7 pt-s5 border-t border-line flex flex-wrap gap-s4">
           <Link
             href="/"
-            className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+            className="text-interactive-ink underline hover:text-interactive-ink-hover rounded-sm"
           >
             ← About HostStats
           </Link>
           <Link
             href="/app/"
-            className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+            className="text-interactive-ink underline hover:text-interactive-ink-hover rounded-sm"
           >
             Open the dashboard
           </Link>
