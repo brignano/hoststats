@@ -311,7 +311,7 @@ export default function Home() {
                 href="https://www.airbnb.com/hosting/reservations"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-interactive-ink hover:text-interactive-hover"
+                className="underline text-interactive-ink hover:text-interactive-ink-hover"
               >
                 airbnb.com/hosting
               </a>

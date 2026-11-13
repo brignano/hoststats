@@ -42,7 +42,7 @@ export default function Terms() {
                 href="https://github.com/brignano/hoststats/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-interactive-ink underline hover:text-interactive-hover"
+                className="text-interactive-ink underline hover:text-interactive-ink-hover"
               >
                 the licence in the repository
               </a>
@@ -90,7 +90,7 @@ export default function Terms() {
               pass-through proxy that stores and logs nothing. The{" "}
               <Link
                 href="/privacy/"
-                className="text-interactive-ink underline hover:text-interactive-hover"
+                className="text-interactive-ink underline hover:text-interactive-ink-hover"
               >
                 privacy policy
               </Link>{" "}
@@ -139,7 +139,7 @@ export default function Terms() {
               Questions about these terms can go to{" "}
               <a
                 href="mailto:hi@brignano.io"
-                className="text-interactive-ink underline hover:text-interactive-hover"
+                className="text-interactive-ink underline hover:text-interactive-ink-hover"
               >
                 hi@brignano.io
               </a>
@@ -151,13 +151,13 @@ export default function Terms() {
         <div className="mt-s7 pt-s5 border-t border-line flex flex-wrap gap-s4">
           <Link
             href="/"
-            className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+            className="text-interactive-ink underline hover:text-interactive-ink-hover rounded-sm"
           >
             ← About HostStats
           </Link>
           <Link
             href="/app/"
-            className="text-interactive-ink underline hover:text-interactive-hover rounded-sm"
+            className="text-interactive-ink underline hover:text-interactive-ink-hover rounded-sm"
           >
             Open the dashboard
           </Link>

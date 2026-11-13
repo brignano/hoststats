@@ -194,7 +194,7 @@ export default function ProductPage() {
                   pass-through proxy that stores and logs nothing. The whole thing is{" "}
                   <a
                     href="https://github.com/brignano/hoststats"
-                    className="text-interactive-ink underline hover:text-interactive-hover"
+                    className="text-interactive-ink underline hover:text-interactive-ink-hover"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
